@@ -9,7 +9,7 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
-  sqflite: ^2.3.2
+  sqflite: ^2.3.0
   path_provider: ^2.1.2
   camera: ^0.10.5+9
   http: ^1.2.1
