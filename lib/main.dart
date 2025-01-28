@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'pages/show_food_page.dart';
-import 'pages/camera_page.dart';  // 新增這行
+import 'pages/home_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/show_food': (context) => const ShowFoodPage(title: 'Calorie Snap'),
       },
-      home: const CameraPage(),
+      home: const HomePage(),  
     );
   }
 }

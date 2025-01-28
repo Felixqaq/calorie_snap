@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../food_db.dart';
+import '../utils.dart';
 
 class ShowFoodPage extends StatefulWidget {
   const ShowFoodPage({super.key, required this.title});
@@ -30,30 +31,7 @@ class _ShowFoodPageState extends State<ShowFoodPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        elevation: 0,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.local_fire_department,
-              color: Colors.white,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              widget.title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-              ),
-            ),
-          ],
-        ),
-        centerTitle: true,
-      ),
+      appBar: buildAppBar(context, widget.title),
       body: ListView.builder(
         itemCount: _foods.length,
         itemBuilder: (context, index) {
