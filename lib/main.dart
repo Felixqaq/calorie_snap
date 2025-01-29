@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'pages/show_food_page.dart';
 import 'pages/home_page.dart';
+import 'pages/show_today_intake_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,6 +36,7 @@ class MyApp extends StatelessWidget {
       ),
       routes: {
         '/show_food': (context) => const ShowFoodPage(title: 'Calorie Snap'),
+        '/show_today_intake': (context) => const ShowTodayIntakePage(),
       },
       home: const HomePage(),  
     );

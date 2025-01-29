@@ -76,4 +76,22 @@ class FoodDatabase {
       );
     });
   }
+
+  Future<List<Food>> getFoodsByDate(DateTime date) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'foods',
+      where: 'dateTime LIKE ?',
+      whereArgs: ['${date.toIso8601String().substring(0, 10)}%'],
+    );
+
+    return List.generate(maps.length, (i) {
+      return Food(
+        id: maps[i]['id'],
+        name: maps[i]['name'],
+        calories: maps[i]['calories'],
+        dateTime: DateTime.parse(maps[i]['dateTime']),
+      );
+    });
+  }
 }

@@ -161,21 +161,47 @@ class _ShowFoodPageState extends State<ShowFoodPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBar(context, widget.title),
-      body: ListView.builder(
-        itemCount: _foods.length,
-        itemBuilder: (context, index) {
-          final food = _foods[index];
-          return ListTile(
-            title: Text(food.name),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('${food.calories} 卡路里'),
-                Text('${food.dateTime.year}-${food.dateTime.month.toString().padLeft(2, '0')}-${food.dateTime.day.toString().padLeft(2, '0')} ${food.dateTime.hour.toString().padLeft(2, '0')}:${food.dateTime.minute.toString().padLeft(2, '0')}'),
-              ],
-            ),
-          );
-        },
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ListView.builder(
+          itemCount: _foods.length,
+          itemBuilder: (context, index) {
+            final food = _foods[index];
+            return Card(
+              margin: const EdgeInsets.symmetric(vertical: 8.0),
+              child: ListTile(
+                leading: CircleAvatar(
+                  child: Text(food.name[0]),
+                ),
+                title: Text(
+                  food.name,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 8),
+                    Text('${food.calories} 卡路里'),
+                    const SizedBox(height: 8),
+                    Text(
+                      '${food.dateTime.year}-${food.dateTime.month.toString().padLeft(2, '0')}-${food.dateTime.day.toString().padLeft(2, '0')} ${food.dateTime.hour.toString().padLeft(2, '0')}:${food.dateTime.minute.toString().padLeft(2, '0')}',
+                      style: const TextStyle(color: Colors.grey),
+                    ),
+                  ],
+                ),
+                trailing: IconButton(
+                  icon: const Icon(Icons.more_vert),
+                  onPressed: () {
+                    // 可以在這裡添加更多操作
+                  },
+                ),
+              ),
+            );
+          },
+        ),
       ),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,

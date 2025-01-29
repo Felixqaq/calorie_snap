@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'camera_page.dart';
 import 'show_food_page.dart';
+import 'show_today_intake_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -60,9 +61,15 @@ class _HomePageState extends State<HomePage> {
             ),
             ListTile(
               leading: const Icon(Icons.list),
-              title: const Text('Daily Intake'),
+              title: const Text('Intake Record'),
               selected: _selectedIndex == 1,
               onTap: () => _onItemTapped(1),
+            ),
+            ListTile(
+              leading: const Icon(Icons.pie_chart),
+              title: const Text('Today\'s Intake'),
+              selected: _selectedIndex == 2,
+              onTap: () => _onItemTapped(2),
             ),
           ],
         ),
@@ -72,6 +79,25 @@ class _HomePageState extends State<HomePage> {
         children: const [
           CameraPage(),
           ShowFoodPage(title: 'Calorie Snap'),
+          ShowTodayIntakePage(),
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.camera_alt),
+            label: 'Snap',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.list),
+            label: 'Intake Record',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.pie_chart),
+            label: 'Today\'s Intake',
+          ),
         ],
       ),
     );
