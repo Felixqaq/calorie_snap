@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'pages/show_food_page.dart';
 import 'pages/home_page.dart';
 
 void main() {
   runApp(const MyApp());
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
 }
 
 class MyApp extends StatelessWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../food_db.dart';
-import '../utils.dart';
+import '../utils/app_bar.dart';
 
 class ShowFoodPage extends StatefulWidget {
   const ShowFoodPage({super.key, required this.title});

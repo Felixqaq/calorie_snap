@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import '../utils.dart';
+import '../utils/app_bar.dart';
 
 class CameraPage extends StatefulWidget {
   const CameraPage({super.key});
@@ -131,7 +131,7 @@ class _CameraPageState extends State<CameraPage> {
       await _initializeControllerFuture;
       final image = await _controller.takePicture();
       if (!mounted) return;
-      
+      // TODO - Navigate to PhotoResultPage
     } catch (e) {
       debugPrint('拍照時發生錯誤: $e');
     }
