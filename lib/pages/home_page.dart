@@ -60,7 +60,7 @@ class _HomePageState extends State<HomePage> {
             ),
             ListTile(
               leading: const Icon(Icons.list),
-              title: const Text('Daily Intake'),
+              title: const Text('Intake Record'),
               selected: _selectedIndex == 1,
               onTap: () => _onItemTapped(1),
             ),
