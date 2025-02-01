@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:provider/provider.dart';
 import '../food_db.dart';
+import '../providers/calorie_provider.dart';
 
 class ShowTodayIntakePage extends StatefulWidget {
   const ShowTodayIntakePage({super.key});
@@ -11,7 +13,7 @@ class ShowTodayIntakePage extends StatefulWidget {
 
 class _ShowTodayIntakePageState extends State<ShowTodayIntakePage> {
   final FoodDatabase _foodDb = FoodDatabase.instance;
-  int _todayCalories = 0;
+  int _targetCalories = 2400;
 
   @override
   void initState() {
@@ -22,9 +24,8 @@ class _ShowTodayIntakePageState extends State<ShowTodayIntakePage> {
   Future<void> _loadTodayCalories() async {
     final today = DateTime.now();
     final foods = await _foodDb.getFoodsByDate(today);
-    setState(() {
-      _todayCalories = foods.fold(0, (sum, food) => sum + food.calories);
-    });
+    final todayCalories = foods.fold(0, (sum, food) => sum + food.calories);
+    Provider.of<CalorieProvider>(context, listen: false).updateCalories(todayCalories);
   }
 
   @override
@@ -41,55 +42,71 @@ class _ShowTodayIntakePageState extends State<ShowTodayIntakePage> {
           ),
         ),
       ),
-      body: Center(
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            CircularPercentIndicator(
-              radius: 120.0, // 增加半徑
-              lineWidth: 15.0, // 增加線條寬度
-              animation: true,
-              percent: (_todayCalories <= 2400) ? _todayCalories / 2400 : 1.0,
-              center: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+      body: RefreshIndicator(
+        onRefresh: _loadTodayCalories,
+        child: Center(
+          child: Consumer<CalorieProvider>(
+            builder: (context, calorieProvider, child) {
+              final _todayCalories = calorieProvider.todayCalories;
+              return Stack(
+                alignment: Alignment.center,
                 children: [
-                  Text(
-                    '$_todayCalories kcal',
-                    style: const TextStyle(
-                      fontFamily: 'Roboto',
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  const Text(
-                    '/ 2400 kcal',
-                    style: TextStyle(
-                      fontFamily: 'Roboto',
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                      color: Colors.black54,
-                    ),
-                  ),
+                  _buildCircularIndicator(_todayCalories),
+                  if (_todayCalories > _targetCalories)
+                    _buildExcessCaloriesIndicator(_todayCalories),
                 ],
-              ),
-              circularStrokeCap: CircularStrokeCap.round,
-              progressColor: Colors.greenAccent, // 更改進度條顏色
-              backgroundColor: Colors.grey.shade300, // 更改背景顏色
-            ),
-            if (_todayCalories > 2400)
-              CircularPercentIndicator(
-                radius: 120.0,
-                lineWidth: 15.0,
-                animation: true,
-                percent: (_todayCalories - 2400) / 2400,
-                circularStrokeCap: CircularStrokeCap.round,
-                progressColor: Colors.redAccent, // 更改進度條顏色
-                backgroundColor: Colors.transparent,
-              ),
-          ],
+              );
+            },
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _buildCircularIndicator(int todayCalories) {
+    return CircularPercentIndicator(
+      radius: 120.0,
+      lineWidth: 15.0,
+      animation: true,
+      percent: (todayCalories <= _targetCalories) ? todayCalories / _targetCalories : 1.0,
+      center: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            '$todayCalories kcal',
+            style: const TextStyle(
+              fontFamily: 'Roboto',
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+          Text(
+            '/ $_targetCalories kcal',
+            style: const TextStyle(
+              fontFamily: 'Roboto',
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+              color: Colors.black54,
+            ),
+          ),
+        ],
+      ),
+      circularStrokeCap: CircularStrokeCap.round,
+      progressColor: Colors.greenAccent,
+      backgroundColor: Colors.grey.shade300,
+    );
+  }
+
+  Widget _buildExcessCaloriesIndicator(int todayCalories) {
+    return CircularPercentIndicator(
+      radius: 120.0,
+      lineWidth: 15.0,
+      animation: true,
+      percent: (todayCalories <= 2 * _targetCalories) ? (todayCalories - _targetCalories) / _targetCalories : 1,
+      circularStrokeCap: CircularStrokeCap.round,
+      progressColor: Colors.redAccent,
+      backgroundColor: Colors.transparent,
     );
   }
 }

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../food_db.dart';
 import '../utils/app_bar.dart';
 import '../services/food_service.dart';
 import '../widgets/food_dialogs.dart';
+import '../providers/calorie_provider.dart'; 
 
 class FoodPage extends StatefulWidget {
   const FoodPage({super.key, required this.title});
@@ -27,8 +29,13 @@ class _FoodPageState extends State<FoodPage> {
   Future<void> _loadFoods() async {
     final foods = await _foodDb.getAllFoods();
     setState(() {
-      _foods = foods.reversed.toList(); // 更改顯示順序為最新的在上面
+      _foods = foods.reversed.toList();
     });
+
+    final today = DateTime.now();
+    final todayFoods = foods.where((food) => food.dateTime.day == today.day).toList();
+    final todayCalories = todayFoods.fold(0, (sum, food) => sum + food.calories);
+    Provider.of<CalorieProvider>(context, listen: false).updateCalories(todayCalories); 
   }
 
   Future<void> _showAddFoodDialog() async {

@@ -16,6 +16,7 @@ dependencies:
   image_picker: ^1.0.7
   path: ^1.8.3
   percent_indicator: ^4.2.2
+  provider: ^6.0.3 # 新增這行
 
 dev_dependencies:
   flutter_test:
