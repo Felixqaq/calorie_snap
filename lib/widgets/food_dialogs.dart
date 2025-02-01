@@ -6,7 +6,7 @@ class FoodDialogs {
   static Future<void> showAddFoodDialog(BuildContext context, FoodDatabase foodDb, Function loadFoods) async {
     final _nameController = TextEditingController();
     final _caloriesController = TextEditingController();
-    DateTime _selectedDate = DateTime.now();
+    final _selectedDate = ValueNotifier<DateTime>(DateTime.now());
 
     await showDialog(
       context: context,
@@ -21,13 +21,18 @@ class FoodDialogs {
                   _buildTextField(_nameController, '食物名稱'),
                   _buildTextField(_caloriesController, '熱量', keyboardType: TextInputType.number),
                   _buildDateTimePicker(context, setState, _selectedDate),
-                  _buildSelectedDateText(_selectedDate),
+                  ValueListenableBuilder<DateTime>(
+                    valueListenable: _selectedDate,
+                    builder: (context, value, child) {
+                      return _buildSelectedDateText(value);
+                    },
+                  ),
                 ],
               ),
               actions: [
                 _buildDialogButton('取消', () => Navigator.of(context).pop()),
                 _buildDialogButton('新增', () async {
-                  await _addFood(context, foodDb, _nameController, _caloriesController, _selectedDate, loadFoods);
+                  await _addFood(context, foodDb, _nameController, _caloriesController, _selectedDate.value, loadFoods);
                 }),
               ],
             );
@@ -67,7 +72,7 @@ class FoodDialogs {
   static Future<void> showEditFoodDialog(BuildContext context, FoodDatabase foodDb, Food food, Function loadFoods) async {
     final _nameController = TextEditingController(text: food.name);
     final _caloriesController = TextEditingController(text: food.calories.toString());
-    DateTime _selectedDate = food.dateTime;
+    final _selectedDate = ValueNotifier<DateTime>(food.dateTime);
 
     await showDialog(
       context: context,
@@ -82,13 +87,18 @@ class FoodDialogs {
                   _buildTextField(_nameController, '食物名稱'),
                   _buildTextField(_caloriesController, '熱量', keyboardType: TextInputType.number),
                   _buildDateTimePicker(context, setState, _selectedDate),
-                  _buildSelectedDateText(_selectedDate),
+                  ValueListenableBuilder<DateTime>(
+                    valueListenable: _selectedDate,
+                    builder: (context, value, child) {
+                      return _buildSelectedDateText(value);
+                    },
+                  ),
                 ],
               ),
               actions: [
                 _buildDialogButton('取消', () => Navigator.of(context).pop()),
                 _buildDialogButton('更新', () async {
-                  await _updateFood(context, foodDb, food.id!, _nameController, _caloriesController, _selectedDate, loadFoods);
+                  await _updateFood(context, foodDb, food.id!, _nameController, _caloriesController, _selectedDate.value, loadFoods);
                 }),
               ],
             );
@@ -106,23 +116,23 @@ class FoodDialogs {
     );
   }
 
-  static ElevatedButton _buildDateTimePicker(BuildContext context, StateSetter setState, DateTime selectedDate) {
+  static Widget _buildDateTimePicker(BuildContext context, StateSetter setState, ValueNotifier<DateTime> selectedDate) {
     return ElevatedButton(
       onPressed: () async {
         final pickedDate = await showDatePicker(
           context: context,
-          initialDate: selectedDate,
+          initialDate: selectedDate.value,
           firstDate: DateTime(2000),
           lastDate: DateTime(2101),
         );
         if (pickedDate != null) {
           final pickedTime = await showTimePicker(
             context: context,
-            initialTime: TimeOfDay.fromDateTime(selectedDate),
+            initialTime: TimeOfDay.fromDateTime(selectedDate.value),
           );
           if (pickedTime != null) {
             setState(() {
-              selectedDate = DateTime(
+              selectedDate.value = DateTime(
                 pickedDate.year,
                 pickedDate.month,
                 pickedDate.day,
@@ -160,7 +170,9 @@ class FoodDialogs {
         ),
       );
       loadFoods();
-      Navigator.of(context).pop();
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
     }
   }
 
@@ -177,7 +189,9 @@ class FoodDialogs {
         ),
       );
       loadFoods();
-      Navigator.of(context).pop();
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
     }
   }
 }
