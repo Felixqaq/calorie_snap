@@ -29,7 +29,7 @@ class _FoodPageState extends State<FoodPage> {
   Future<void> _loadFoods() async {
     final foods = await _foodDb.getAllFoods();
     setState(() {
-      _foods = foods.reversed.toList();
+      _foods = foods.toList();
     });
 
     final today = DateTime.now();

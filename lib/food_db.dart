@@ -65,7 +65,10 @@ class FoodDatabase {
 
   Future<List<Food>> getAllFoods() async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query('foods');
+    final List<Map<String, dynamic>> maps = await db.query(
+      'foods',
+      orderBy: 'dateTime DESC'
+    );
     
     return List.generate(maps.length, (i) {
       return Food(

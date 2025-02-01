@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
@@ -14,28 +13,43 @@ class CircularCalorieIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        _buildMainIndicator(),
-        if (todayCalories > targetCalories) _buildExcessIndicator(),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final size = constraints.maxWidth * 0.7;
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            _buildMainIndicator(size),
+            if (todayCalories > targetCalories) _buildExcessIndicator(size),
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildMainIndicator() {
+  Widget _buildMainIndicator(double size) {
     return CircularPercentIndicator(
-      radius: 120.0,
-      lineWidth: 15.0,
+      radius: size / 2,
+      lineWidth: size / 15,
       animation: true,
       percent: (todayCalories <= targetCalories) ? todayCalories / targetCalories : 1.0,
       center: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text('$todayCalories kcal',
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-          Text('/ $targetCalories kcal',
-              style: const TextStyle(fontSize: 16, color: Colors.black54)),
+          Text(
+            '$todayCalories kcal',
+            style: TextStyle(
+              fontSize: size / 10,
+              fontWeight: FontWeight.bold
+            ),
+          ),
+          Text(
+            '/ $targetCalories kcal',
+            style: TextStyle(
+              fontSize: size / 15,
+              color: Colors.black54
+            ),
+          ),
         ],
       ),
       circularStrokeCap: CircularStrokeCap.round,
@@ -44,10 +58,10 @@ class CircularCalorieIndicator extends StatelessWidget {
     );
   }
 
-  Widget _buildExcessIndicator() {
+  Widget _buildExcessIndicator(double size) {
     return CircularPercentIndicator(
-      radius: 120.0,
-      lineWidth: 15.0,
+      radius: size / 2,
+      lineWidth: size / 15,
       animation: true,
       percent: (todayCalories <= 2 * targetCalories) 
           ? (todayCalories - targetCalories) / targetCalories 
