@@ -2,23 +2,20 @@ import 'package:flutter/material.dart';
 
 AppBar buildAppBar(BuildContext context, String title) {
   return AppBar(
-    backgroundColor: Theme.of(context).colorScheme.primary,
-    elevation: 0,
+    backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+    elevation: Theme.of(context).appBarTheme.elevation,
     leading: IconButton(
-      icon: const Icon(Icons.menu, color: Colors.white),
+      icon: Icon(Icons.menu, color: Theme.of(context).iconTheme.color),
       onPressed: () {
         Scaffold.of(context).openDrawer();
       },
     ),
     title: Text(
       title,
-      style: const TextStyle(
-        color: Colors.white,
-        fontSize: 24,
-        fontWeight: FontWeight.bold,
-        letterSpacing: 1.2,
+      style: Theme.of(context).appBarTheme.titleTextStyle?.copyWith(
+        color: Theme.of(context).primaryColor,
       ),
     ),
-    centerTitle: true,
+    centerTitle: Theme.of(context).appBarTheme.centerTitle,
   );
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'pages/show_food_page.dart';
+import 'pages/food_page.dart'; // 修改這行
 import 'pages/home_page.dart';
 import 'pages/show_today_intake_page.dart';
 
@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       routes: {
-        '/show_food': (context) => const ShowFoodPage(title: 'Calorie Snap'),
+        '/show_food': (context) => const FoodPage(title: 'Food Record'), 
         '/show_today_intake': (context) => const ShowTodayIntakePage(),
       },
       home: const HomePage(),  

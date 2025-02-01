@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'camera_page.dart';
-import 'show_food_page.dart';
+import 'food_page.dart';
 import 'show_today_intake_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -78,13 +78,15 @@ class _HomePageState extends State<HomePage> {
         index: _selectedIndex,
         children: const [
           CameraPage(),
-          ShowFoodPage(title: 'Calorie Snap'),
+          FoodPage(title: 'Food Record'),
           ShowTodayIntakePage(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.camera_alt),

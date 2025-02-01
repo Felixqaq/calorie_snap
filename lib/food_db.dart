@@ -94,4 +94,23 @@ class FoodDatabase {
       );
     });
   }
+
+  Future<void> deleteFood(int id) async {
+    final db = await database;
+    await db.delete(
+      'foods',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<void> updateFood(Food food) async {
+    final db = await database;
+    await db.update(
+      'foods',
+      food.toMap(),
+      where: 'id = ?',
+      whereArgs: [food.id],
+    );
+  }
 }
