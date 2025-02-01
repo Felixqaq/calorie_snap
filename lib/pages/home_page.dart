@@ -58,20 +58,20 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               ListTile(
-                leading: const Icon(Icons.camera_alt),
-                title: const Text('Snap'),
+                leading: const Icon(Icons.home),
+                title: const Text('Today\'s Intake'),
                 selected: _selectedIndex == 0,
                 onTap: () => _onItemTapped(0),
               ),
               ListTile(
-                leading: const Icon(Icons.list),
-                title: const Text('Intake Record'),
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Snap'),
                 selected: _selectedIndex == 1,
                 onTap: () => _onItemTapped(1),
               ),
               ListTile(
-                leading: const Icon(Icons.pie_chart),
-                title: const Text('Today\'s Intake'),
+                leading: const Icon(Icons.list),
+                title: const Text('Intake Record'),
                 selected: _selectedIndex == 2,
                 onTap: () => _onItemTapped(2),
               ),
@@ -81,9 +81,9 @@ class _HomePageState extends State<HomePage> {
         body: IndexedStack(
           index: _selectedIndex,
           children: const [
+            ShowTodayIntakePage(),
             CameraPage(),
             FoodPage(title: 'Food Record'),
-            ShowTodayIntakePage(),
           ],
         ),
         bottomNavigationBar: BottomNavigationBar(
@@ -93,16 +93,16 @@ class _HomePageState extends State<HomePage> {
           showUnselectedLabels: false,
           items: const [
             BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Today\'s Intake',
+            ),
+            BottomNavigationBarItem(
               icon: Icon(Icons.camera_alt),
               label: 'Snap',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.list),
               label: 'Intake Record',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.pie_chart),
-              label: 'Today\'s Intake',
             ),
           ],
         ),

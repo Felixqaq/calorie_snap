@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../food_db.dart';
 import '../providers/calorie_provider.dart';
+import '../widgets/circular_calorie_indicator.dart';
+import '../widgets/weekly_calorie_chart.dart';
 
 class ShowTodayIntakePage extends StatefulWidget {
   const ShowTodayIntakePage({super.key});
@@ -67,14 +68,9 @@ class _ShowTodayIntakePageState extends State<ShowTodayIntakePage> {
               child: Center(
                 child: Consumer<CalorieProvider>(
                   builder: (context, calorieProvider, child) {
-                    final _todayCalories = calorieProvider.todayCalories;
-                    return Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        _buildCircularIndicator(_todayCalories),
-                        if (_todayCalories > _targetCalories)
-                          _buildExcessCaloriesIndicator(_todayCalories),
-                      ],
+                    return CircularCalorieIndicator(
+                      todayCalories: calorieProvider.todayCalories,
+                      targetCalories: _targetCalories,
                     );
                   },
                 ),
@@ -92,76 +88,13 @@ class _ShowTodayIntakePageState extends State<ShowTodayIntakePage> {
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return const Center(child: Text('No data available'));
                   }
-                  return LineChart(
-                    LineChartData(
-                      lineBarsData: [
-                        LineChartBarData(
-                          spots: snapshot.data!,
-                          isCurved: true,
-                          color: Colors.blue,
-                          barWidth: 4,
-                          isStrokeCapRound: true,
-                          belowBarData: BarAreaData(show: true, color: Colors.blue.withOpacity(0.2)),
-                          dotData: FlDotData(show: true),
-                        ),
-                      ],
-                      titlesData: FlTitlesData(
-                        bottomTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            getTitlesWidget: (value, meta) {
-                              const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-                              return Text(days[value.toInt()], style: TextStyle(fontSize: 12));
-                            },
-                          ),
-                        ),
-                        leftTitles: AxisTitles(
-                          sideTitles: SideTitles(showTitles: true),
-                        ),
-                      ),
-                      gridData: FlGridData(show: true, drawVerticalLine: false),
-                      borderData: FlBorderData(show: false),
-                    ),
-                  );
+                  return WeeklyCalorieChart(spots: snapshot.data!);
                 },
               ),
             ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildCircularIndicator(int todayCalories) {
-    return CircularPercentIndicator(
-      radius: 120.0,
-      lineWidth: 15.0,
-      animation: true,
-      percent: (todayCalories <= _targetCalories) ? todayCalories / _targetCalories : 1.0,
-      center: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text('$todayCalories kcal',
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-          Text('/ $_targetCalories kcal',
-              style: const TextStyle(fontSize: 16, color: Colors.black54)),
-        ],
-      ),
-      circularStrokeCap: CircularStrokeCap.round,
-      progressColor: Colors.greenAccent,
-      backgroundColor: Colors.grey.shade300,
-    );
-  }
-
-  Widget _buildExcessCaloriesIndicator(int todayCalories) {
-    return CircularPercentIndicator(
-      radius: 120.0,
-      lineWidth: 15.0,
-      animation: true,
-      percent: (todayCalories <= 2 * _targetCalories) ? (todayCalories - _targetCalories) / _targetCalories : 1,
-      circularStrokeCap: CircularStrokeCap.round,
-      progressColor: Colors.redAccent,
-      backgroundColor: Colors.transparent,
     );
   }
 }
