@@ -5,7 +5,7 @@ AppBar buildAppBar(BuildContext context, String title) {
     backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
     elevation: Theme.of(context).appBarTheme.elevation,
     leading: IconButton(
-      icon: Icon(Icons.menu, color: Theme.of(context).iconTheme.color),
+      icon: Icon(Icons.menu, color: Theme.of(context).disabledColor),
       onPressed: () {
         Scaffold.of(context).openDrawer();
       },

@@ -4,9 +4,9 @@ import '../services/food_service.dart';
 
 class FoodDialogs {
   static Future<void> showAddFoodDialog(BuildContext context, FoodDatabase foodDb, Function loadFoods) async {
-    final _nameController = TextEditingController();
-    final _caloriesController = TextEditingController();
-    final _selectedDate = ValueNotifier<DateTime>(DateTime.now());
+    final nameController = TextEditingController();
+    final caloriesController = TextEditingController();
+    final selectedDate = ValueNotifier<DateTime>(DateTime.now());
 
     await showDialog(
       context: context,
@@ -18,11 +18,11 @@ class FoodDialogs {
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildTextField(_nameController, '食物名稱'),
-                  _buildTextField(_caloriesController, '熱量', keyboardType: TextInputType.number),
-                  _buildDateTimePicker(context, setState, _selectedDate),
+                  _buildTextField(nameController, '食物名稱'),
+                  _buildTextField(caloriesController, '熱量', keyboardType: TextInputType.number),
+                  _buildDateTimePicker(context, setState, selectedDate),
                   ValueListenableBuilder<DateTime>(
-                    valueListenable: _selectedDate,
+                    valueListenable: selectedDate,
                     builder: (context, value, child) {
                       return _buildSelectedDateText(value);
                     },
@@ -32,7 +32,7 @@ class FoodDialogs {
               actions: [
                 _buildDialogButton('取消', () => Navigator.of(context).pop()),
                 _buildDialogButton('新增', () async {
-                  await _addFood(context, foodDb, _nameController, _caloriesController, _selectedDate.value, loadFoods);
+                  await _addFood(context, foodDb, nameController, caloriesController, selectedDate.value, loadFoods);
                 }),
               ],
             );
@@ -43,7 +43,7 @@ class FoodDialogs {
   }
 
   static Future<void> showSearchFoodDialog(BuildContext context, FoodService foodService) async {
-    final _searchController = TextEditingController();
+    final searchController = TextEditingController();
 
     await showDialog(
       context: context,
@@ -51,13 +51,13 @@ class FoodDialogs {
         return AlertDialog(
           title: const Text('搜尋食物'),
           content: TextField(
-            controller: _searchController,
+            controller: searchController,
             decoration: const InputDecoration(labelText: '食物名稱'),
           ),
           actions: [
             _buildDialogButton('取消', () => Navigator.of(context).pop()),
             _buildDialogButton('搜尋', () async {
-              final query = _searchController.text;
+              final query = searchController.text;
               if (query.isNotEmpty) {
                 await foodService.searchFood(query);
                 Navigator.of(context).pop();
@@ -70,9 +70,9 @@ class FoodDialogs {
   }
 
   static Future<void> showEditFoodDialog(BuildContext context, FoodDatabase foodDb, Food food, Function loadFoods) async {
-    final _nameController = TextEditingController(text: food.name);
-    final _caloriesController = TextEditingController(text: food.calories.toString());
-    final _selectedDate = ValueNotifier<DateTime>(food.dateTime);
+    final nameController = TextEditingController(text: food.name);
+    final caloriesController = TextEditingController(text: food.calories.toString());
+    final selectedDate = ValueNotifier<DateTime>(food.dateTime);
 
     await showDialog(
       context: context,
@@ -84,11 +84,11 @@ class FoodDialogs {
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildTextField(_nameController, '食物名稱'),
-                  _buildTextField(_caloriesController, '熱量', keyboardType: TextInputType.number),
-                  _buildDateTimePicker(context, setState, _selectedDate),
+                  _buildTextField(nameController, '食物名稱'),
+                  _buildTextField(caloriesController, '熱量', keyboardType: TextInputType.number),
+                  _buildDateTimePicker(context, setState, selectedDate),
                   ValueListenableBuilder<DateTime>(
-                    valueListenable: _selectedDate,
+                    valueListenable: selectedDate,
                     builder: (context, value, child) {
                       return _buildSelectedDateText(value);
                     },
@@ -98,7 +98,7 @@ class FoodDialogs {
               actions: [
                 _buildDialogButton('取消', () => Navigator.of(context).pop()),
                 _buildDialogButton('更新', () async {
-                  await _updateFood(context, foodDb, food.id!, _nameController, _caloriesController, _selectedDate.value, loadFoods);
+                  await _updateFood(context, foodDb, food.id!, nameController, caloriesController, selectedDate.value, loadFoods);
                 }),
               ],
             );

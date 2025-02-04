@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => CalorieProvider(), // 新增這行
+      create: (_) => CalorieProvider(), 
       child: MaterialApp(
         title: 'Calorie Snap',
         theme: ThemeData(

@@ -6,6 +6,7 @@ import '../providers/calorie_provider.dart';
 import '../widgets/circular_calorie_indicator.dart';
 import '../widgets/weekly_calorie_chart.dart';
 import '../widgets/food_list_widget.dart';
+import '../utils/app_bar.dart';  // 新增這行
 
 class ShowTodayIntakePage extends StatefulWidget {
   const ShowTodayIntakePage({super.key});
@@ -62,29 +63,18 @@ class _ShowTodayIntakePageState extends State<ShowTodayIntakePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Daily Intake',
-          style: TextStyle(
-            fontFamily: 'Roboto',
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-          ),
-        ),
-      ),
+      appBar: buildAppBar(context, 'Daily Intake'),
       body: RefreshIndicator(
         onRefresh: _loadTodayCalories,
         child: Column(
           children: [
             Container(
-              height: MediaQuery.of(context).size.height * 0.3,
-              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+              height: 300,  // 調整此數值可改變高度
+              padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Flexible(
-                    flex: 1,
+                  Expanded(
                     child: Consumer<CalorieProvider>(
                       builder: (context, calorieProvider, child) {
                         return CircularCalorieIndicator(
@@ -94,9 +84,8 @@ class _ShowTodayIntakePageState extends State<ShowTodayIntakePage> {
                       },
                     ),
                   ),
-                  const SizedBox(width: 16.0),  // 添加間距
-                  Flexible(
-                    flex: 1,
+                  SizedBox(width: MediaQuery.of(context).size.width * 0.005),
+                  Expanded(
                     child: FutureBuilder<Map<String, dynamic>>(
                       future: _loadWeeklyCalories(),
                       builder: (context, snapshot) {
@@ -116,7 +105,9 @@ class _ShowTodayIntakePageState extends State<ShowTodayIntakePage> {
                 ],
               ),
             ),
+            // 保留讓 FoodListWidget 佔滿下半部
             Expanded(
+              flex: 1,
               child: FutureBuilder<List<Food>>(
                 future: _loadTodayFoods(),
                 builder: (context, snapshot) {
@@ -125,7 +116,6 @@ class _ShowTodayIntakePageState extends State<ShowTodayIntakePage> {
                   } else if (snapshot.hasError) {
                     return Center(child: Text('Error: ${snapshot.error}'));
                   }
-                  
                   return FoodListWidget(foods: snapshot.data ?? []);
                 },
               ),
