@@ -25,9 +25,20 @@ class _ShowTodayIntakePageState extends State<ShowTodayIntakePage> {
     _loadTodayCalories();
   }
 
-  Future<void> _loadTodayCalories() async {
+  // 新增：回傳今天日期
+  DateTime _getTodayDate() {
     final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
+    return DateTime(now.year, now.month, now.day);
+  }
+
+  // 新增：回傳本週開始日期（假設週一為第一天）
+  DateTime _getStartOfWeekDate() {
+    final now = DateTime.now();
+    return now.subtract(Duration(days: now.weekday - 1));
+  }
+
+  Future<void> _loadTodayCalories() async {
+    final today = _getTodayDate();
     final foods = await _foodDb.getFoodsByDate(today);
     final todayCalories = foods.fold(0, (sum, food) => sum + food.calories);
     if (mounted) {
@@ -35,12 +46,15 @@ class _ShowTodayIntakePageState extends State<ShowTodayIntakePage> {
     }
   }
 
+  Future<List<Food>> _loadTodayFoods() async {
+    final today = _getTodayDate();
+    return await _foodDb.getFoodsByDate(today);
+  }
+
   Future<Map<String, dynamic>> _loadWeeklyCalories() async {
-    final now = DateTime.now();
-    final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+    final startOfWeek = _getStartOfWeekDate();
     List<FlSpot> spots = [];
     List<DateTime> dates = [];
-    
     for (int i = 0; i < 7; i++) {
       final date = startOfWeek.add(Duration(days: i));
       dates.add(date);
@@ -54,10 +68,42 @@ class _ShowTodayIntakePageState extends State<ShowTodayIntakePage> {
     };
   }
 
-  Future<List<Food>> _loadTodayFoods() async {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    return await _foodDb.getFoodsByDate(today);
+  // 新增：抽離 WeeklyCalorieChart 的 widget 建置邏輯
+  Widget _buildWeeklyChart() {
+    return FutureBuilder<Map<String, dynamic>>(
+      future: _loadWeeklyCalories(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (!snapshot.hasData) {
+          return const Center(child: Text('無資料'));
+        }
+        return WeeklyCalorieChart(
+          spots: snapshot.data!['spots'],
+          dates: snapshot.data!['dates'],
+        );
+      },
+    );
+  }
+
+  // 新增：抽離 FoodListWidget 的 widget 建置邏輯
+  Widget _buildFoodList() {
+    return Consumer<CalorieProvider>(
+      builder: (context, calorieProvider, child) {
+        return FutureBuilder<List<Food>>(
+          future: _loadTodayFoods(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            }
+            return FoodListWidget(foods: snapshot.data ?? []);
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -86,21 +132,7 @@ class _ShowTodayIntakePageState extends State<ShowTodayIntakePage> {
                   ),
                   SizedBox(width: MediaQuery.of(context).size.width * 0.005),
                   Expanded(
-                    child: FutureBuilder<Map<String, dynamic>>(
-                      future: _loadWeeklyCalories(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(child: CircularProgressIndicator());
-                        }
-                        if (!snapshot.hasData) {
-                          return const Center(child: Text('無資料'));
-                        }
-                        return WeeklyCalorieChart(
-                          spots: snapshot.data!['spots'],
-                          dates: snapshot.data!['dates'],
-                        );
-                      },
-                    ),
+                    child: _buildWeeklyChart(),
                   ),
                 ],
               ),
@@ -108,17 +140,7 @@ class _ShowTodayIntakePageState extends State<ShowTodayIntakePage> {
             // 保留讓 FoodListWidget 佔滿下半部
             Expanded(
               flex: 1,
-              child: FutureBuilder<List<Food>>(
-                future: _loadTodayFoods(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  }
-                  return FoodListWidget(foods: snapshot.data ?? []);
-                },
-              ),
+              child: _buildFoodList(),
             ),
           ],
         ),
