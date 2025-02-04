@@ -4,12 +4,12 @@ import 'package:intl/intl.dart';
 
 class WeeklyCalorieChart extends StatelessWidget {
   final List<FlSpot> spots;
-  final List<DateTime> dates;  // 新增日期列表參數
+  final List<DateTime> dates; 
 
   const WeeklyCalorieChart({
     super.key,
     required this.spots,
-    required this.dates,  // 新增參數
+    required this.dates,  
   });
 
   @override
@@ -24,12 +24,11 @@ class WeeklyCalorieChart extends StatelessWidget {
             lineBarsData: [
               LineChartBarData(
                 spots: spots,
-                isCurved: true,
-                color: Colors.blue,
-                barWidth: 4,
+                color: Colors.greenAccent,
+                barWidth: 2,
                 isStrokeCapRound: true,
-                belowBarData: BarAreaData(show: true, color: Colors.blue.withOpacity(0.2)),
-                dotData: FlDotData(show: true),
+                belowBarData: BarAreaData(show: true, color: Colors.greenAccent.withOpacity(0.1)),
+                dotData: FlDotData(show: false),
               ),
             ],
             titlesData: FlTitlesData(
@@ -41,11 +40,18 @@ class WeeklyCalorieChart extends StatelessWidget {
                     if (index >= 0 && index < dates.length) {
                       final weekDay = ['一', '二', '三', '四', '五', '六', '日'][dates[index].weekday - 1];
                       return Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Text(
-                          '${DateFormat('M/d').format(dates[index])}\n$weekDay',
-                          style: const TextStyle(fontSize: 8),
-                          textAlign: TextAlign.center,
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: Column(
+                          children: [
+                            Text(
+                              DateFormat('M/d').format(dates[index]),
+                              style: const TextStyle(fontSize: 10, color: Colors.black),
+                            ),
+                            Text(
+                              weekDay,
+                              style: const TextStyle(fontSize: 10, color: Colors.black),
+                            ),
+                          ],
                         ),
                       );
                     }
@@ -63,7 +69,7 @@ class WeeklyCalorieChart extends StatelessWidget {
                     if (value % 1000 == 0 && value <= 3000 && value > 0) {
                       return Text(
                         value.toInt().toString(),
-                        style: const TextStyle(fontSize: 10),
+                        style: const TextStyle(fontSize: 10, color: Colors.black),
                       );
                     }
                     return const Text('');
@@ -73,7 +79,12 @@ class WeeklyCalorieChart extends StatelessWidget {
               topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
               rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
             ),
-            gridData: FlGridData(show: true, drawVerticalLine: false),
+            gridData: FlGridData(show: true, drawVerticalLine: false, getDrawingHorizontalLine: (value) {
+              return FlLine(
+                color: Colors.grey.withOpacity(0.2),
+                strokeWidth: 1,
+              );
+            }),
             borderData: FlBorderData(show: false),
           ),
         ),

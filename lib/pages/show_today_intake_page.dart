@@ -17,7 +17,7 @@ class ShowTodayIntakePage extends StatefulWidget {
 
 class _ShowTodayIntakePageState extends State<ShowTodayIntakePage> {
   final FoodDatabase _foodDb = FoodDatabase.instance;
-  int _targetCalories = 2400;
+  final int _targetCalories = 2400;
 
   @override
   void initState() {
@@ -25,13 +25,11 @@ class _ShowTodayIntakePageState extends State<ShowTodayIntakePage> {
     _loadTodayCalories();
   }
 
-  // 新增：回傳今天日期
   DateTime _getTodayDate() {
     final now = DateTime.now();
     return DateTime(now.year, now.month, now.day);
   }
 
-  // 新增：回傳本週開始日期（假設週一為第一天）
   DateTime _getStartOfWeekDate() {
     final now = DateTime.now();
     return now.subtract(Duration(days: now.weekday - 1));
@@ -68,26 +66,28 @@ class _ShowTodayIntakePageState extends State<ShowTodayIntakePage> {
     };
   }
 
-  // 新增：抽離 WeeklyCalorieChart 的 widget 建置邏輯
   Widget _buildWeeklyChart() {
-    return FutureBuilder<Map<String, dynamic>>(
-      future: _loadWeeklyCalories(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (!snapshot.hasData) {
-          return const Center(child: Text('無資料'));
-        }
-        return WeeklyCalorieChart(
-          spots: snapshot.data!['spots'],
-          dates: snapshot.data!['dates'],
+    return Consumer<CalorieProvider>(
+      builder: (context, calorieProvider, child) {
+        return FutureBuilder<Map<String, dynamic>>(
+          future: _loadWeeklyCalories(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (!snapshot.hasData) {
+              return const Center(child: Text('無資料'));
+            }
+            return WeeklyCalorieChart(
+              spots: snapshot.data!['spots'],
+              dates: snapshot.data!['dates'],
+            );
+          },
         );
       },
     );
   }
 
-  // 新增：抽離 FoodListWidget 的 widget 建置邏輯
   Widget _buildFoodList() {
     return Consumer<CalorieProvider>(
       builder: (context, calorieProvider, child) {
@@ -115,7 +115,7 @@ class _ShowTodayIntakePageState extends State<ShowTodayIntakePage> {
         child: Column(
           children: [
             Container(
-              height: 300,  // 調整此數值可改變高度
+              height: 300,  
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -137,7 +137,6 @@ class _ShowTodayIntakePageState extends State<ShowTodayIntakePage> {
                 ],
               ),
             ),
-            // 保留讓 FoodListWidget 佔滿下半部
             Expanded(
               flex: 1,
               child: _buildFoodList(),
