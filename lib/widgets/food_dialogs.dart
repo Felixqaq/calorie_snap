@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../food_db.dart';
-import '../services/food_service.dart';
 import './search_dialogs.dart';
+import '../providers/calorie_provider.dart';
 
 class FoodDialogs {
-  static Future<void> showAddFoodDialog(BuildContext context, FoodDatabase foodDb, Function loadFoods) async {
+  static Future<void> showAddFoodDialog(BuildContext context) async {
     final nameController = TextEditingController();
     final caloriesController = TextEditingController();
     final fatController = TextEditingController();
@@ -22,12 +23,12 @@ class FoodDialogs {
       proteinController,
       selectedDate,
       () async {
-        await _addFood(context, foodDb, nameController, caloriesController, fatController, carbsController, proteinController, selectedDate.value, loadFoods);
+        await _addFood(context, nameController, caloriesController, fatController, carbsController, proteinController, selectedDate.value);
       },
     );
   }
 
-  static Future<void> showEditFoodDialog(BuildContext context, FoodDatabase foodDb, Food food, Function loadFoods) async {
+  static Future<void> showEditFoodDialog(BuildContext context, Food food) async {
     final nameController = TextEditingController(text: food.name);
     final caloriesController = TextEditingController(text: food.calories.toString());
     final fatController = TextEditingController(text: food.fat?.toString() ?? '');
@@ -45,7 +46,7 @@ class FoodDialogs {
       proteinController,
       selectedDate,
       () async {
-        await _updateFood(context, foodDb, food.id!, nameController, caloriesController, fatController, carbsController, proteinController, selectedDate.value, loadFoods);
+        await _updateFood(context, food.id!, nameController, caloriesController, fatController, carbsController, proteinController, selectedDate.value);
       },
     );
   }
@@ -96,8 +97,8 @@ class FoodDialogs {
     );
   }
 
-  static Future<void> showSearchFoodDialog(BuildContext context, FoodService foodService) async {
-    await SearchDialogs.showSearchFoodDialog(context, foodService);
+  static Future<void> showSearchFoodDialog(BuildContext context) async {
+    await SearchDialogs.showSearchFoodDialog(context);
   }
 
   static TextField _buildTextField(TextEditingController controller, String labelText, {TextInputType keyboardType = TextInputType.text}) {
@@ -150,14 +151,14 @@ class FoodDialogs {
     );
   }
 
-  static Future<void> _addFood(BuildContext context, FoodDatabase foodDb, TextEditingController nameController, TextEditingController caloriesController, TextEditingController fatController, TextEditingController carbsController, TextEditingController proteinController, DateTime selectedDate, Function loadFoods) async {
+  static Future<void> _addFood(BuildContext context, TextEditingController nameController, TextEditingController caloriesController, TextEditingController fatController, TextEditingController carbsController, TextEditingController proteinController, DateTime selectedDate) async {
     final name = nameController.text;
     final calories = int.tryParse(caloriesController.text) ?? 0;
     final fat = double.tryParse(fatController.text)?? 0;
     final carbs = double.tryParse(carbsController.text)?? 0;
     final protein = double.tryParse(proteinController.text)?? 0;
     if (name.isNotEmpty && calories > 0) {
-      await foodDb.insertFood(
+      await FoodDatabase.instance.insertFood(
         Food(
           name: name,
           calories: calories,
@@ -167,19 +168,19 @@ class FoodDialogs {
           protein: protein,
         ),
       );
-      loadFoods();
+      Provider.of<CalorieProvider>(context, listen: false).loadFoods();
       Navigator.of(context).pop(); // 移動到這裡
     }
   }
 
-  static Future<void> _updateFood(BuildContext context, FoodDatabase foodDb, int id, TextEditingController nameController, TextEditingController caloriesController, TextEditingController fatController, TextEditingController carbsController, TextEditingController proteinController, DateTime selectedDate, Function loadFoods) async {
+  static Future<void> _updateFood(BuildContext context, int id, TextEditingController nameController, TextEditingController caloriesController, TextEditingController fatController, TextEditingController carbsController, TextEditingController proteinController, DateTime selectedDate) async {
     final name = nameController.text;
     final calories = int.tryParse(caloriesController.text) ?? 0;
     final fat = double.tryParse(fatController.text);
     final carbs = double.tryParse(carbsController.text);
     final protein = double.tryParse(proteinController.text);
     if (name.isNotEmpty && calories > 0) {
-      await foodDb.updateFood(
+      await FoodDatabase.instance.updateFood(
         Food(
           id: id,
           name: name,
@@ -190,8 +191,8 @@ class FoodDialogs {
           protein: protein,
         ),
       );
-      loadFoods();
-      Navigator.of(context).pop(); // 移動到這裡
+      Provider.of<CalorieProvider>(context, listen: false).loadFoods();
+      Navigator.of(context).pop();
     }
   }
 }

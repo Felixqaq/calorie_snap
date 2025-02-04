@@ -36,12 +36,7 @@ class _ShowTodayIntakePageState extends State<ShowTodayIntakePage> {
   }
 
   Future<void> _loadTodayCalories() async {
-    final today = _getTodayDate();
-    final foods = await _foodDb.getFoodsByDate(today);
-    final todayCalories = foods.fold(0, (sum, food) => sum + food.calories);
-    if (mounted) {
-      Provider.of<CalorieProvider>(context, listen: false).updateCalories(todayCalories);
-    }
+    Provider.of<CalorieProvider>(context, listen: false).loadFoods();
   }
 
   Future<List<Food>> _loadTodayFoods() async {

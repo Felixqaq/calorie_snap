@@ -1,10 +1,13 @@
+import 'package:calorie_snap/providers/calorie_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../services/food_service.dart';
 import '../food_db.dart';
 
 class SearchDialogs {
-  static Future<void> showSearchFoodDialog(BuildContext context, FoodService foodService) async {
+  static Future<void> showSearchFoodDialog(BuildContext context) async {
     final searchController = TextEditingController();
+    final foodService = FoodService(); 
 
     await showDialog(
       context: context,
@@ -27,6 +30,7 @@ class SearchDialogs {
                 if (context.mounted) {
                   Navigator.of(context).pop();
                   _showSearchResults(context, results);
+                  Provider.of<CalorieProvider>(context, listen: false).loadFoods(); // 新增這行
                 }
               }
             }),
@@ -108,6 +112,7 @@ class SearchDialogs {
         final foodDb = FoodDatabase.instance;
         final food = parseFoodInfo(item);
         await foodDb.insertFood(food);
+        Provider.of<CalorieProvider>(context, listen: false).loadFoods(); 
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${item.foodName} 已加入')),
