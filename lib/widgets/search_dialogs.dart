@@ -66,105 +66,13 @@ class SearchDialogs {
                     itemCount: results.length,
                     itemBuilder: (context, index) {
                       final item = results[index];
-                      return ListTile(
-                        title: Text(
-                          item.foodName,
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  item.weight,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyLarge
-                                      ?.copyWith(color: Colors.grey),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Icon(Icons.local_fire_department),
-                                SizedBox(width: 5),
-                                Text(
-                                  item.calories,
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                ),
-                                SizedBox(width: 20),
-                                Icon(Icons.opacity),
-                                SizedBox(width: 5),
-                                Text(
-                                  item.fat,
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Icon(Icons.fastfood),
-                                SizedBox(width: 5),
-                                Text(
-                                  item.carbs,
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                ),
-                                SizedBox(width: 20),
-                                Icon(Icons.fitness_center),
-                                SizedBox(width: 5),
-                                Text(
-                                  item.protein,
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        onTap: () async {
-                          final foodDb = FoodDatabase.instance;
-                          final food = parseFoodInfo(item);
-                          await foodDb.insertFood(food);
-                          Navigator.of(context).pop();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('${item.foodName} 已加入')),
-                          );
-                        },
-                      );
+                      return _buildFoodListItem(context, item);
                     },
                   ),
                 ),
               ),
               const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Icon(Icons.local_fire_department, size: 16),
-                  Text('Calories',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(fontSize: 12, color: Colors.grey)),
-                  Icon(Icons.opacity, size: 16),
-                  Text('Fat',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(fontSize: 12, color: Colors.grey)),
-                  Icon(Icons.fastfood, size: 16),
-                  Text('Carbs',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(fontSize: 12, color: Colors.grey)),
-                  Icon(Icons.fitness_center, size: 16),
-                  Text('Protein',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(fontSize: 12, color: Colors.grey)),
-                ],
-              ),
+              _buildLegend(context),
             ],
           ),
           actions: [
@@ -172,6 +80,79 @@ class SearchDialogs {
           ],
         );
       },
+    );
+  }
+
+  static ListTile _buildFoodListItem(BuildContext context, FoodInfoItem item) {
+    return ListTile(
+      title: Text(
+        item.foodName,
+        style: Theme.of(context).textTheme.titleMedium,
+      ),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                item.weight,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.grey),
+              ),
+            ],
+          ),
+          _buildFoodInfoRow(context, Icons.local_fire_department, item.calories, Icons.opacity, item.fat),
+          _buildFoodInfoRow(context, Icons.fastfood, item.carbs, Icons.fitness_center, item.protein),
+        ],
+      ),
+      onTap: () async {
+        final foodDb = FoodDatabase.instance;
+        final food = parseFoodInfo(item);
+        await foodDb.insertFood(food);
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${item.foodName} 已加入')),
+        );
+      },
+    );
+  }
+
+  static Row _buildFoodInfoRow(BuildContext context, IconData icon1, String text1, IconData icon2, String text2) {
+    return Row(
+      children: [
+        Icon(icon1),
+        SizedBox(width: 5),
+        Text(
+          text1,
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        SizedBox(width: 20),
+        Icon(icon2),
+        SizedBox(width: 5),
+        Text(
+          text2,
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+      ],
+    );
+  }
+
+  static Row _buildLegend(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        Icon(Icons.local_fire_department, size: 16),
+        Text('Calories',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12, color: Colors.grey)),
+        Icon(Icons.opacity, size: 16),
+        Text('Fat',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12, color: Colors.grey)),
+        Icon(Icons.fastfood, size: 16),
+        Text('Carbs',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12, color: Colors.grey)),
+        Icon(Icons.fitness_center, size: 16),
+        Text('Protein',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12, color: Colors.grey)),
+      ],
     );
   }
 
