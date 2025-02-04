@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/food_service.dart';
+import '../food_db.dart';
 
 class SearchDialogs {
   static Future<void> showSearchFoodDialog(BuildContext context, FoodService foodService) async {
@@ -35,6 +36,17 @@ class SearchDialogs {
     );
   }
 
+  static Food parseFoodInfo(FoodInfoItem item) {
+    return Food(
+      name: item.foodName,
+      calories: int.parse(item.calories.replaceAll('kcal', '').trim()),
+      dateTime: DateTime.now(),
+      fat: double.tryParse(item.fat.replaceAll('g', '').trim()),
+      carbs: double.tryParse(item.carbs.replaceAll('g', '').trim()),
+      protein: double.tryParse(item.protein.replaceAll('g', '').trim()),
+    );
+  }
+
   static void _showSearchResults(BuildContext context, List<FoodInfoItem> results) {
     showDialog(
       context: context,
@@ -62,7 +74,6 @@ class SearchDialogs {
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // 重量使用 bodySmall 調色
                             Row(
                               children: [
                                 Text(
@@ -74,7 +85,6 @@ class SearchDialogs {
                                 ),
                               ],
                             ),
-                            // 卡路里與脂肪使用 bodyMedium
                             Row(
                               children: [
                                 Icon(Icons.local_fire_department),
@@ -92,7 +102,6 @@ class SearchDialogs {
                                 ),
                               ],
                             ),
-                            // 碳水與蛋白質使用 bodyMedium
                             Row(
                               children: [
                                 Icon(Icons.fastfood),
@@ -112,8 +121,14 @@ class SearchDialogs {
                             ),
                           ],
                         ),
-                        onTap: () {
-                          Navigator.of(context).pop(item);
+                        onTap: () async {
+                          final foodDb = FoodDatabase.instance;
+                          final food = parseFoodInfo(item);
+                          await foodDb.insertFood(food);
+                          Navigator.of(context).pop();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('${item.foodName} 已加入')),
+                          );
                         },
                       );
                     },
@@ -121,7 +136,6 @@ class SearchDialogs {
                 ),
               ),
               const SizedBox(height: 10),
-              // 調整下方圖示說明文字為 bodySmall
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [

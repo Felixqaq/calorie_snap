@@ -7,6 +7,9 @@ class FoodDialogs {
   static Future<void> showAddFoodDialog(BuildContext context, FoodDatabase foodDb, Function loadFoods) async {
     final nameController = TextEditingController();
     final caloriesController = TextEditingController();
+    final fatController = TextEditingController();
+    final carbsController = TextEditingController();
+    final proteinController = TextEditingController();
     final selectedDate = ValueNotifier<DateTime>(DateTime.now());
 
     await _showFoodDialog(
@@ -14,9 +17,12 @@ class FoodDialogs {
       '新增食物',
       nameController,
       caloriesController,
+      fatController,
+      carbsController,
+      proteinController,
       selectedDate,
       () async {
-        await _addFood(context, foodDb, nameController, caloriesController, selectedDate.value, loadFoods);
+        await _addFood(context, foodDb, nameController, caloriesController, fatController, carbsController, proteinController, selectedDate.value, loadFoods);
       },
     );
   }
@@ -24,6 +30,9 @@ class FoodDialogs {
   static Future<void> showEditFoodDialog(BuildContext context, FoodDatabase foodDb, Food food, Function loadFoods) async {
     final nameController = TextEditingController(text: food.name);
     final caloriesController = TextEditingController(text: food.calories.toString());
+    final fatController = TextEditingController(text: food.fat?.toString() ?? '');
+    final carbsController = TextEditingController(text: food.carbs?.toString() ?? '');
+    final proteinController = TextEditingController(text: food.protein?.toString() ?? '');
     final selectedDate = ValueNotifier<DateTime>(food.dateTime);
 
     await _showFoodDialog(
@@ -31,9 +40,12 @@ class FoodDialogs {
       '編輯食物',
       nameController,
       caloriesController,
+      fatController,
+      carbsController,
+      proteinController,
       selectedDate,
       () async {
-        await _updateFood(context, foodDb, food.id!, nameController, caloriesController, selectedDate.value, loadFoods);
+        await _updateFood(context, foodDb, food.id!, nameController, caloriesController, fatController, carbsController, proteinController, selectedDate.value, loadFoods);
       },
     );
   }
@@ -43,6 +55,9 @@ class FoodDialogs {
     String title,
     TextEditingController nameController,
     TextEditingController caloriesController,
+    TextEditingController fatController,
+    TextEditingController carbsController,
+    TextEditingController proteinController,
     ValueNotifier<DateTime> selectedDate,
     Future<void> Function() onConfirm,
   ) async {
@@ -58,6 +73,9 @@ class FoodDialogs {
                 children: [
                   _buildTextField(nameController, '食物名稱'),
                   _buildTextField(caloriesController, '熱量', keyboardType: TextInputType.number),
+                  _buildTextField(fatController, '脂肪', keyboardType: TextInputType.number),
+                  _buildTextField(carbsController, '碳水化合物', keyboardType: TextInputType.number),
+                  _buildTextField(proteinController, '蛋白質', keyboardType: TextInputType.number),
                   _buildDateTimePicker(context, setState, selectedDate),
                   ValueListenableBuilder<DateTime>(
                     valueListenable: selectedDate,
@@ -132,15 +150,21 @@ class FoodDialogs {
     );
   }
 
-  static Future<void> _addFood(BuildContext context, FoodDatabase foodDb, TextEditingController nameController, TextEditingController caloriesController, DateTime selectedDate, Function loadFoods) async {
+  static Future<void> _addFood(BuildContext context, FoodDatabase foodDb, TextEditingController nameController, TextEditingController caloriesController, TextEditingController fatController, TextEditingController carbsController, TextEditingController proteinController, DateTime selectedDate, Function loadFoods) async {
     final name = nameController.text;
     final calories = int.tryParse(caloriesController.text) ?? 0;
+    final fat = double.tryParse(fatController.text)?? 0;
+    final carbs = double.tryParse(carbsController.text)?? 0;
+    final protein = double.tryParse(proteinController.text)?? 0;
     if (name.isNotEmpty && calories > 0) {
       await foodDb.insertFood(
         Food(
           name: name,
           calories: calories,
           dateTime: selectedDate,
+          fat: fat,
+          carbs: carbs,
+          protein: protein,
         ),
       );
       loadFoods();
@@ -148,9 +172,12 @@ class FoodDialogs {
     }
   }
 
-  static Future<void> _updateFood(BuildContext context, FoodDatabase foodDb, int id, TextEditingController nameController, TextEditingController caloriesController, DateTime selectedDate, Function loadFoods) async {
+  static Future<void> _updateFood(BuildContext context, FoodDatabase foodDb, int id, TextEditingController nameController, TextEditingController caloriesController, TextEditingController fatController, TextEditingController carbsController, TextEditingController proteinController, DateTime selectedDate, Function loadFoods) async {
     final name = nameController.text;
     final calories = int.tryParse(caloriesController.text) ?? 0;
+    final fat = double.tryParse(fatController.text);
+    final carbs = double.tryParse(carbsController.text);
+    final protein = double.tryParse(proteinController.text);
     if (name.isNotEmpty && calories > 0) {
       await foodDb.updateFood(
         Food(
@@ -158,6 +185,9 @@ class FoodDialogs {
           name: name,
           calories: calories,
           dateTime: selectedDate,
+          fat: fat,
+          carbs: carbs,
+          protein: protein,
         ),
       );
       loadFoods();

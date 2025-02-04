@@ -6,12 +6,18 @@ class Food {
   final String name;
   final int calories;
   final DateTime dateTime;
+  final double? fat;
+  final double? carbs;
+  final double? protein;
 
   Food({
     this.id,
     required this.name,
     required this.calories,
     required this.dateTime,
+    this.fat,
+    this.carbs,
+    this.protein,
   });
 
   Map<String, dynamic> toMap() {
@@ -20,6 +26,9 @@ class Food {
       'name': name,
       'calories': calories,
       'dateTime': dateTime.toIso8601String(),
+      'fat': fat,
+      'carbs': carbs,
+      'protein': protein,
     };
   }
 }
@@ -40,11 +49,16 @@ class FoodDatabase {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(
-      path,
-      version: 1,
-      onCreate: _createDB,
-    );
+    try {
+      return await openDatabase(
+        path,
+        version: 5, 
+        onCreate: _createDB,
+        onUpgrade: _upgradeDB, 
+      );
+    } catch (e) {
+      throw Exception('Error initializing database: $e');
+    }
   }
 
   Future _createDB(Database db, int version) async {
@@ -53,9 +67,29 @@ class FoodDatabase {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         calories INTEGER NOT NULL,
-        dateTime TEXT NOT NULL
+        dateTime TEXT NOT NULL,
+        fat REAL,
+        carbs REAL,
+        protein REAL
       )
     ''');
+  }
+
+  Future _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    final tableInfo = await db.rawQuery('PRAGMA table_info(foods)');
+    final hasFat = tableInfo.any((col) => col['name'] == 'fat');
+    final hasCarbs = tableInfo.any((col) => col['name'] == 'carbs');
+    final hasProtein = tableInfo.any((col) => col['name'] == 'protein');
+
+    if (!hasFat) {
+      await db.execute('ALTER TABLE foods ADD COLUMN fat REAL;');
+    }
+    if (!hasCarbs) {
+      await db.execute('ALTER TABLE foods ADD COLUMN carbs REAL;');
+    }
+    if (!hasProtein) {
+      await db.execute('ALTER TABLE foods ADD COLUMN protein REAL;');
+    }
   }
 
   Future<void> insertFood(Food food) async {
@@ -76,6 +110,9 @@ class FoodDatabase {
         name: maps[i]['name'],
         calories: maps[i]['calories'],
         dateTime: DateTime.parse(maps[i]['dateTime']),
+        fat: maps[i]['fat'],
+        carbs: maps[i]['carbs'],
+        protein: maps[i]['protein'],
       );
     });
   }
@@ -94,6 +131,9 @@ class FoodDatabase {
         name: maps[i]['name'],
         calories: maps[i]['calories'],
         dateTime: DateTime.parse(maps[i]['dateTime']),
+        fat: maps[i]['fat'],
+        carbs: maps[i]['carbs'],
+        protein: maps[i]['protein'],
       );
     });
   }
@@ -115,5 +155,10 @@ class FoodDatabase {
       where: 'id = ?',
       whereArgs: [food.id],
     );
+  }
+
+  Future<void> close() async {
+    final db = await database;
+    db.close();
   }
 }
