@@ -1,6 +1,35 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:flutter/foundation.dart'; 
+import 'package:flutter/foundation.dart';
+
+class FoodInfoItem {
+  final String foodName;
+  final String weight;
+  final String calories;
+  final String fat;
+  final String carbs;
+  final String protein;
+
+  FoodInfoItem({
+    required this.foodName,
+    required this.weight,
+    required this.calories,
+    required this.fat,
+    required this.carbs,
+    required this.protein,
+  });
+
+  factory FoodInfoItem.fromJson(Map<String, dynamic> json) {
+    return FoodInfoItem(
+      foodName: json['food_name'],
+      weight: json['weight'],
+      calories: json['calories'],
+      fat: json['fat'],
+      carbs: json['carbs'],
+      protein: json['protein'],
+    );
+  }
+}
 
 class FoodService {
 
@@ -8,27 +37,29 @@ class FoodService {
     return 'http://10.0.2.2:8000';
   }
 
-  Future<void> searchFood(String query) async {
-    debugPrint('搜尋食物: $query'); 
+  Future<List<FoodInfoItem>> searchFood(String query) async {
+    debugPrint('搜尋食物: $query');
 
     final String baseUrl = _initializeBaseUrl();
 
     if (baseUrl.isEmpty) {
       debugPrint('baseUrl Empty');
-      return;
+      return [];
     }
 
     debugPrint('baseUrl: $baseUrl');
-    
+
     final url = Uri.parse('$baseUrl/search_food/?query=$query');
 
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body);
-      debugPrint('回應資料: $responseData'); 
+      final responseData = jsonDecode(response.body) as List;
+      debugPrint('回應資料: $responseData');
+      return responseData.map((data) => FoodInfoItem.fromJson(data)).toList();
     } else {
-      debugPrint('\x1B[31m錯誤: ${response.statusCode}\x1B[0m'); 
+      debugPrint('\x1B[31m錯誤: ${response.statusCode}\x1B[0m');
+      return [];
     }
   }
 }

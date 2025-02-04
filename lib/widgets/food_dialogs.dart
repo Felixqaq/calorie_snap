@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../food_db.dart';
 import '../services/food_service.dart';
+import './search_dialogs.dart';
 
 class FoodDialogs {
   static Future<void> showAddFoodDialog(BuildContext context, FoodDatabase foodDb, Function loadFoods) async {
@@ -8,63 +9,14 @@ class FoodDialogs {
     final caloriesController = TextEditingController();
     final selectedDate = ValueNotifier<DateTime>(DateTime.now());
 
-    await showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: const Text('新增食物'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildTextField(nameController, '食物名稱'),
-                  _buildTextField(caloriesController, '熱量', keyboardType: TextInputType.number),
-                  _buildDateTimePicker(context, setState, selectedDate),
-                  ValueListenableBuilder<DateTime>(
-                    valueListenable: selectedDate,
-                    builder: (context, value, child) {
-                      return _buildSelectedDateText(value);
-                    },
-                  ),
-                ],
-              ),
-              actions: [
-                _buildDialogButton('取消', () => Navigator.of(context).pop()),
-                _buildDialogButton('新增', () async {
-                  await _addFood(context, foodDb, nameController, caloriesController, selectedDate.value, loadFoods);
-                }),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
-  static Future<void> showSearchFoodDialog(BuildContext context, FoodService foodService) async {
-    final searchController = TextEditingController();
-
-    await showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('搜尋食物'),
-          content: TextField(
-            controller: searchController,
-            decoration: const InputDecoration(labelText: '食物名稱'),
-          ),
-          actions: [
-            _buildDialogButton('取消', () => Navigator.of(context).pop()),
-            _buildDialogButton('搜尋', () async {
-              final query = searchController.text;
-              if (query.isNotEmpty) {
-                await foodService.searchFood(query);
-                Navigator.of(context).pop();
-              }
-            }),
-          ],
-        );
+    await _showFoodDialog(
+      context,
+      '新增食物',
+      nameController,
+      caloriesController,
+      selectedDate,
+      () async {
+        await _addFood(context, foodDb, nameController, caloriesController, selectedDate.value, loadFoods);
       },
     );
   }
@@ -74,13 +26,33 @@ class FoodDialogs {
     final caloriesController = TextEditingController(text: food.calories.toString());
     final selectedDate = ValueNotifier<DateTime>(food.dateTime);
 
+    await _showFoodDialog(
+      context,
+      '編輯食物',
+      nameController,
+      caloriesController,
+      selectedDate,
+      () async {
+        await _updateFood(context, foodDb, food.id!, nameController, caloriesController, selectedDate.value, loadFoods);
+      },
+    );
+  }
+
+  static Future<void> _showFoodDialog(
+    BuildContext context,
+    String title,
+    TextEditingController nameController,
+    TextEditingController caloriesController,
+    ValueNotifier<DateTime> selectedDate,
+    Future<void> Function() onConfirm,
+  ) async {
     await showDialog(
       context: context,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('編輯食物'),
+              title: Text(title),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -97,15 +69,17 @@ class FoodDialogs {
               ),
               actions: [
                 _buildDialogButton('取消', () => Navigator.of(context).pop()),
-                _buildDialogButton('更新', () async {
-                  await _updateFood(context, foodDb, food.id!, nameController, caloriesController, selectedDate.value, loadFoods);
-                }),
+                _buildDialogButton('確認', onConfirm),
               ],
             );
           },
         );
       },
     );
+  }
+
+  static Future<void> showSearchFoodDialog(BuildContext context, FoodService foodService) async {
+    await SearchDialogs.showSearchFoodDialog(context, foodService);
   }
 
   static TextField _buildTextField(TextEditingController controller, String labelText, {TextInputType keyboardType = TextInputType.text}) {
@@ -170,9 +144,7 @@ class FoodDialogs {
         ),
       );
       loadFoods();
-      if (context.mounted) {
-        Navigator.of(context).pop();
-      }
+      Navigator.of(context).pop(); // 移動到這裡
     }
   }
 
@@ -189,9 +161,7 @@ class FoodDialogs {
         ),
       );
       loadFoods();
-      if (context.mounted) {
-        Navigator.of(context).pop();
-      }
+      Navigator.of(context).pop(); // 移動到這裡
     }
   }
 }
