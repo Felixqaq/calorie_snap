@@ -9,7 +9,10 @@ class SearchDialogs {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('搜尋食物'),
+          title: Text(
+            '搜尋食物',
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
           content: TextField(
             controller: searchController,
             decoration: const InputDecoration(labelText: '食物名稱'),
@@ -20,8 +23,10 @@ class SearchDialogs {
               final query = searchController.text;
               if (query.isNotEmpty) {
                 final results = await foodService.searchFood(query);
-                Navigator.of(context).pop();
-                _showSearchResults(context, results);
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                  _showSearchResults(context, results);
+                }
               }
             }),
           ],
@@ -35,62 +40,118 @@ class SearchDialogs {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('搜尋結果'),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: results.length,
-              itemBuilder: (context, index) {
-                final item = results[index];
-                return ListTile(
-                  title: Text(item.foodName),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.scale),
-                          SizedBox(width: 5),
-                          Text('Weight: ${item.weight}'),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Icon(Icons.local_fire_department),
-                          SizedBox(width: 5),
-                          Text('Calories: ${item.calories}'),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Icon(Icons.opacity),
-                          SizedBox(width: 5),
-                          Text('Fat: ${item.fat}'),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Icon(Icons.fastfood),
-                          SizedBox(width: 5),
-                          Text('Carbs: ${item.carbs}'),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Icon(Icons.fitness_center),
-                          SizedBox(width: 5),
-                          Text('Protein: ${item.protein}'),
-                        ],
-                      ),
-                    ],
+          title: Text(
+            '搜尋結果',
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          content: Column(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  width: double.maxFinite,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: results.length,
+                    itemBuilder: (context, index) {
+                      final item = results[index];
+                      return ListTile(
+                        title: Text(
+                          item.foodName,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // 重量使用 bodySmall 調色
+                            Row(
+                              children: [
+                                Text(
+                                  item.weight,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge
+                                      ?.copyWith(color: Colors.grey),
+                                ),
+                              ],
+                            ),
+                            // 卡路里與脂肪使用 bodyMedium
+                            Row(
+                              children: [
+                                Icon(Icons.local_fire_department),
+                                SizedBox(width: 5),
+                                Text(
+                                  item.calories,
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                                SizedBox(width: 20),
+                                Icon(Icons.opacity),
+                                SizedBox(width: 5),
+                                Text(
+                                  item.fat,
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ],
+                            ),
+                            // 碳水與蛋白質使用 bodyMedium
+                            Row(
+                              children: [
+                                Icon(Icons.fastfood),
+                                SizedBox(width: 5),
+                                Text(
+                                  item.carbs,
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                                SizedBox(width: 20),
+                                Icon(Icons.fitness_center),
+                                SizedBox(width: 5),
+                                Text(
+                                  item.protein,
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        onTap: () {
+                          Navigator.of(context).pop(item);
+                        },
+                      );
+                    },
                   ),
-                  onTap: () {
-                    Navigator.of(context).pop(item);
-                  },
-                );
-              },
-            ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              // 調整下方圖示說明文字為 bodySmall
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Icon(Icons.local_fire_department, size: 16),
+                  Text('Calories',
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(fontSize: 12, color: Colors.grey)),
+                  Icon(Icons.opacity, size: 16),
+                  Text('Fat',
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(fontSize: 12, color: Colors.grey)),
+                  Icon(Icons.fastfood, size: 16),
+                  Text('Carbs',
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(fontSize: 12, color: Colors.grey)),
+                  Icon(Icons.fitness_center, size: 16),
+                  Text('Protein',
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(fontSize: 12, color: Colors.grey)),
+                ],
+              ),
+            ],
           ),
           actions: [
             _buildDialogButton('關閉', () => Navigator.of(context).pop()),
