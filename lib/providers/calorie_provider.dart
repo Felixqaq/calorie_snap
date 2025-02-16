@@ -1,5 +1,6 @@
+import 'package:calorie_snap/food.dart';
+import 'package:calorie_snap/food_db.dart';
 import 'package:flutter/material.dart';
-import '../food_db.dart';
 
 class CalorieProvider extends ChangeNotifier {
   int _todayCalories = 0;
@@ -11,13 +12,7 @@ class CalorieProvider extends ChangeNotifier {
 
   Future<void> loadFoods() async {
     final foods = await _foodDb.getAllFoods();
-    _foods = foods.toList();
-
-    final today = DateTime.now();
-    final todayFoods =
-        foods.where((food) => food.dateTime.day == today.day).toList();
-    _todayCalories = todayFoods.fold(0, (sum, food) => sum + food.calories);
-    notifyListeners();
+    _updateFoodsAndCalories(foods);
   }
 
   Future<void> addFood(Food food) async {
@@ -33,5 +28,18 @@ class CalorieProvider extends ChangeNotifier {
   Future<void> deleteFood(int id) async {
     await _foodDb.deleteFood(id);
     await loadFoods();
+  }
+
+  Future<List<Food>> getFoodsByDate(DateTime date) async {
+    return await _foodDb.getFoodsByDate(date);
+  }
+
+  void _updateFoodsAndCalories(List<Food> foods) {
+    _foods = foods.toList();
+    final today = DateTime.now();
+    final todayFoods =
+        foods.where((food) => food.dateTime.day == today.day).toList();
+    _todayCalories = todayFoods.fold(0, (sum, food) => sum + food.calories);
+    notifyListeners();
   }
 }

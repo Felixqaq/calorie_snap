@@ -1,12 +1,12 @@
+import 'package:calorie_snap/food.dart';
+import 'package:calorie_snap/providers/calorie_provider.dart';
+import 'package:calorie_snap/utils/app_bar.dart';
+import 'package:calorie_snap/widgets/circular_calorie_indicator.dart';
+import 'package:calorie_snap/widgets/food_list_widget.dart';
+import 'package:calorie_snap/widgets/weekly_calorie_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../food_db.dart';
-import '../providers/calorie_provider.dart';
-import '../widgets/circular_calorie_indicator.dart';
-import '../widgets/weekly_calorie_chart.dart';
-import '../widgets/food_list_widget.dart';
-import '../utils/app_bar.dart';
 
 class ShowTodayIntakePage extends StatefulWidget {
   const ShowTodayIntakePage({super.key});
@@ -16,7 +16,6 @@ class ShowTodayIntakePage extends StatefulWidget {
 }
 
 class _ShowTodayIntakePageState extends State<ShowTodayIntakePage> {
-  final FoodDatabase _foodDb = FoodDatabase.instance;
   final int _targetCalories = 2400;
 
   @override
@@ -41,7 +40,8 @@ class _ShowTodayIntakePageState extends State<ShowTodayIntakePage> {
 
   Future<List<Food>> _loadTodayFoods() async {
     final today = _getTodayDate();
-    return await _foodDb.getFoodsByDate(today);
+    return Provider.of<CalorieProvider>(context, listen: false)
+        .getFoodsByDate(today);
   }
 
   Future<Map<String, dynamic>> _loadWeeklyCalories() async {
@@ -51,7 +51,8 @@ class _ShowTodayIntakePageState extends State<ShowTodayIntakePage> {
     for (int i = 0; i < 7; i++) {
       final date = startOfWeek.add(Duration(days: i));
       dates.add(date);
-      final foods = await _foodDb.getFoodsByDate(date);
+      final foods = await Provider.of<CalorieProvider>(context, listen: false)
+          .getFoodsByDate(date);
       final dayCalories = foods.fold(0, (sum, food) => sum + food.calories);
       spots.add(FlSpot(i.toDouble(), dayCalories.toDouble()));
     }

@@ -1,8 +1,8 @@
+import 'package:calorie_snap/food.dart';
 import 'package:calorie_snap/providers/calorie_provider.dart';
+import 'package:calorie_snap/services/food_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../services/food_service.dart';
-import '../food_db.dart';
 
 class SearchDialogs {
   static Future<void> showSearchFoodDialog(BuildContext context) async {
@@ -114,10 +114,8 @@ class SearchDialogs {
         ],
       ),
       onTap: () async {
-        final foodDb = FoodDatabase.instance;
         final food = parseFoodInfo(item);
-        await foodDb.insertFood(food);
-        Provider.of<CalorieProvider>(context, listen: false).loadFoods();
+        Provider.of<CalorieProvider>(context, listen: false).addFood(food);
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${item.foodName} 已加入')),

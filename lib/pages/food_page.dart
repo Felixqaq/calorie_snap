@@ -1,9 +1,10 @@
+import 'package:calorie_snap/food.dart';
+import 'package:calorie_snap/providers/calorie_provider.dart';
+import 'package:calorie_snap/utils/app_bar.dart';
+import 'package:calorie_snap/widgets/food_dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../food_db.dart';
-import '../utils/app_bar.dart';
-import '../widgets/food_dialogs.dart';
-import '../providers/calorie_provider.dart';
+
 
 class FoodPage extends StatefulWidget {
   const FoodPage({super.key, required this.title});
@@ -15,11 +16,10 @@ class FoodPage extends StatefulWidget {
 }
 
 class _FoodPageState extends State<FoodPage> {
-  final FoodDatabase _foodDb = FoodDatabase.instance;
-
   @override
   void initState() {
     super.initState();
+    Provider.of<CalorieProvider>(context, listen: false).loadFoods();
   }
 
   Future<void> _showAddFoodDialog() async {
@@ -91,9 +91,9 @@ class _FoodPageState extends State<FoodPage> {
                         IconButton(
                           icon: const Icon(Icons.delete),
                           onPressed: () async {
-                            await _foodDb.deleteFood(food.id!);
-                            Provider.of<CalorieProvider>(context, listen: false)
-                                .loadFoods();
+                            await Provider.of<CalorieProvider>(context,
+                                    listen: false)
+                                .deleteFood(food.id!);
                           },
                         ),
                         IconButton(

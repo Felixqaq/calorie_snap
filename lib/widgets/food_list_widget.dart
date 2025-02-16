@@ -1,5 +1,5 @@
+import 'package:calorie_snap/food.dart';
 import 'package:flutter/material.dart';
-import '../food_db.dart';
 
 class FoodListWidget extends StatelessWidget {
   final List<Food> foods;
