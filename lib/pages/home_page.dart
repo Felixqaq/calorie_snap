@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'camera_page.dart';
 import 'food_page.dart';
 import 'show_today_intake_page.dart';
 import '../providers/calorie_provider.dart';
+import 'search_food_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -58,19 +58,22 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               ListTile(
-                leading: const Icon(Icons.home),
+                leading: Icon(Icons.home,
+                    color: Theme.of(context).colorScheme.primary),
                 title: const Text('Today\'s Intake'),
                 selected: _selectedIndex == 0,
                 onTap: () => _onItemTapped(0),
               ),
               ListTile(
-                leading: const Icon(Icons.camera_alt),
-                title: const Text('Snap'),
+                leading: Icon(Icons.search,
+                    color: Theme.of(context).colorScheme.primary),
+                title: const Text('Search Food'),
                 selected: _selectedIndex == 1,
                 onTap: () => _onItemTapped(1),
               ),
               ListTile(
-                leading: const Icon(Icons.list),
+                leading: Icon(Icons.list,
+                    color: Theme.of(context).colorScheme.primary),
                 title: const Text('Intake Record'),
                 selected: _selectedIndex == 2,
                 onTap: () => _onItemTapped(2),
@@ -82,7 +85,7 @@ class _HomePageState extends State<HomePage> {
           index: _selectedIndex,
           children: const [
             ShowTodayIntakePage(),
-            CameraPage(),
+            SearchFoodPage(),
             FoodPage(title: 'Food Record'),
           ],
         ),
@@ -91,17 +94,20 @@ class _HomePageState extends State<HomePage> {
           onTap: _onItemTapped,
           showSelectedLabels: false,
           showUnselectedLabels: false,
-          items: const [
+          items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home),
+              icon: Icon(Icons.home,
+                  color: Theme.of(context).colorScheme.primary),
               label: 'Today\'s Intake',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.camera_alt),
-              label: 'Snap',
+              icon: Icon(Icons.search,
+                  color: Theme.of(context).colorScheme.primary),
+              label: 'Search Food',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.list),
+              icon: Icon(Icons.list,
+                  color: Theme.of(context).colorScheme.primary),
               label: 'Intake Record',
             ),
           ],

@@ -32,7 +32,6 @@ class FoodInfoItem {
 }
 
 class FoodService {
-
   static String _initializeBaseUrl() {
     return 'http://192.168.1.111:8000';
     // return 'http://10.0.2.2:8000';
@@ -56,6 +55,35 @@ class FoodService {
 
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body) as List;
+      debugPrint('回應資料: $responseData');
+      return responseData.map((data) => FoodInfoItem.fromJson(data)).toList();
+    } else {
+      debugPrint('\x1B[31m錯誤: ${response.statusCode}\x1B[0m');
+      return [];
+    }
+  }
+
+  Future<List<FoodInfoItem>> searchFoodByImage(String imagePath) async {
+    debugPrint('搜尋食物圖片: $imagePath');
+
+    final String baseUrl = _initializeBaseUrl();
+
+    if (baseUrl.isEmpty) {
+      debugPrint('baseUrl Empty');
+      return [];
+    }
+
+    debugPrint('baseUrl: $baseUrl');
+
+    final url = Uri.parse('$baseUrl/search_food_by_image/');
+    final request = http.MultipartRequest('POST', url);
+    request.files.add(await http.MultipartFile.fromPath('image', imagePath));
+
+    final response = await request.send();
+
+    if (response.statusCode == 200) {
+      final responseData =
+          jsonDecode(await response.stream.bytesToString()) as List;
       debugPrint('回應資料: $responseData');
       return responseData.map((data) => FoodInfoItem.fromJson(data)).toList();
     } else {

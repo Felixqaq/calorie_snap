@@ -5,7 +5,6 @@ import 'package:calorie_snap/widgets/food_dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-
 class FoodPage extends StatefulWidget {
   const FoodPage({super.key, required this.title});
 
@@ -24,10 +23,6 @@ class _FoodPageState extends State<FoodPage> {
 
   Future<void> _showAddFoodDialog() async {
     await FoodDialogs.showAddFoodDialog(context);
-  }
-
-  Future<void> _showSearchFoodDialog() async {
-    await FoodDialogs.showSearchFoodDialog(context);
   }
 
   Future<void> _showEditFoodDialog(Food food) async {
@@ -109,21 +104,10 @@ class _FoodPageState extends State<FoodPage> {
           },
         ),
       ),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          FloatingActionButton(
-            onPressed: _showAddFoodDialog,
-            tooltip: '新增食物',
-            child: const Icon(Icons.add),
-          ),
-          const SizedBox(height: 16),
-          FloatingActionButton(
-            onPressed: _showSearchFoodDialog,
-            tooltip: '搜尋食物',
-            child: const Icon(Icons.search),
-          ),
-        ],
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showAddFoodDialog,
+        tooltip: '新增食物',
+        child: const Icon(Icons.add),
       ),
     );
   }

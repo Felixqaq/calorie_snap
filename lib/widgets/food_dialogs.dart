@@ -1,6 +1,5 @@
 import 'package:calorie_snap/food.dart';
 import 'package:calorie_snap/providers/calorie_provider.dart';
-import 'package:calorie_snap/widgets/search_dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -119,10 +118,6 @@ class FoodDialogs {
         );
       },
     );
-  }
-
-  static Future<void> showSearchFoodDialog(BuildContext context) async {
-    await SearchDialogs.showSearchFoodDialog(context);
   }
 
   static TextField _buildTextField(
