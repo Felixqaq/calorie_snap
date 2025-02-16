@@ -7,7 +7,7 @@ import '../food_db.dart';
 class SearchDialogs {
   static Future<void> showSearchFoodDialog(BuildContext context) async {
     final searchController = TextEditingController();
-    final foodService = FoodService(); 
+    final foodService = FoodService();
 
     await showDialog(
       context: context,
@@ -30,7 +30,6 @@ class SearchDialogs {
                 if (context.mounted) {
                   Navigator.of(context).pop();
                   _showSearchResults(context, results);
-                  Provider.of<CalorieProvider>(context, listen: false).loadFoods(); // 新增這行
                 }
               }
             }),
@@ -51,7 +50,8 @@ class SearchDialogs {
     );
   }
 
-  static void _showSearchResults(BuildContext context, List<FoodInfoItem> results) {
+  static void _showSearchResults(
+      BuildContext context, List<FoodInfoItem> results) {
     showDialog(
       context: context,
       builder: (context) {
@@ -100,19 +100,24 @@ class SearchDialogs {
             children: [
               Text(
                 item.weight,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.grey),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyLarge
+                    ?.copyWith(color: Colors.grey),
               ),
             ],
           ),
-          _buildFoodInfoRow(context, Icons.local_fire_department, item.calories, Icons.opacity, item.fat),
-          _buildFoodInfoRow(context, Icons.fastfood, item.carbs, Icons.fitness_center, item.protein),
+          _buildFoodInfoRow(context, Icons.local_fire_department, item.calories,
+              Icons.opacity, item.fat),
+          _buildFoodInfoRow(context, Icons.fastfood, item.carbs,
+              Icons.fitness_center, item.protein),
         ],
       ),
       onTap: () async {
         final foodDb = FoodDatabase.instance;
         final food = parseFoodInfo(item);
         await foodDb.insertFood(food);
-        Provider.of<CalorieProvider>(context, listen: false).loadFoods(); 
+        Provider.of<CalorieProvider>(context, listen: false).loadFoods();
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${item.foodName} 已加入')),
@@ -121,22 +126,25 @@ class SearchDialogs {
     );
   }
 
-  static Row _buildFoodInfoRow(BuildContext context, IconData icon1, String text1, IconData icon2, String text2) {
+  static List<Widget> _buildIconTextPair(
+      BuildContext context, IconData icon, String text) {
+    return [
+      Icon(icon),
+      SizedBox(width: 5),
+      Text(
+        text,
+        style: Theme.of(context).textTheme.bodyMedium,
+      ),
+    ];
+  }
+
+  static Row _buildFoodInfoRow(BuildContext context, IconData icon1,
+      String text1, IconData icon2, String text2) {
     return Row(
       children: [
-        Icon(icon1),
-        SizedBox(width: 5),
-        Text(
-          text1,
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
+        ..._buildIconTextPair(context, icon1, text1),
         SizedBox(width: 20),
-        Icon(icon2),
-        SizedBox(width: 5),
-        Text(
-          text2,
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
+        ..._buildIconTextPair(context, icon2, text2),
       ],
     );
   }
@@ -147,16 +155,28 @@ class SearchDialogs {
       children: [
         Icon(Icons.local_fire_department, size: 16),
         Text('Calories',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12, color: Colors.grey)),
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(fontSize: 12, color: Colors.grey)),
         Icon(Icons.opacity, size: 16),
         Text('Fat',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12, color: Colors.grey)),
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(fontSize: 12, color: Colors.grey)),
         Icon(Icons.fastfood, size: 16),
         Text('Carbs',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12, color: Colors.grey)),
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(fontSize: 12, color: Colors.grey)),
         Icon(Icons.fitness_center, size: 16),
         Text('Protein',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12, color: Colors.grey)),
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(fontSize: 12, color: Colors.grey)),
       ],
     );
   }

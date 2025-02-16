@@ -6,7 +6,7 @@ import '../providers/calorie_provider.dart';
 import '../widgets/circular_calorie_indicator.dart';
 import '../widgets/weekly_calorie_chart.dart';
 import '../widgets/food_list_widget.dart';
-import '../utils/app_bar.dart';  // 新增這行
+import '../utils/app_bar.dart';
 
 class ShowTodayIntakePage extends StatefulWidget {
   const ShowTodayIntakePage({super.key});
@@ -110,7 +110,7 @@ class _ShowTodayIntakePageState extends State<ShowTodayIntakePage> {
         child: Column(
           children: [
             Container(
-              height: 300,  
+              height: 300,
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,

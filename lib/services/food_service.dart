@@ -34,7 +34,8 @@ class FoodInfoItem {
 class FoodService {
 
   static String _initializeBaseUrl() {
-    return 'http://10.0.2.2:8000';
+    return 'http://192.168.1.111:8000';
+    // return 'http://10.0.2.2:8000';
   }
 
   Future<List<FoodInfoItem>> searchFood(String query) async {

@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'pages/food_page.dart';
 import 'pages/home_page.dart';
 import 'pages/show_today_intake_page.dart';
-import 'providers/calorie_provider.dart'; 
+import 'providers/calorie_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => CalorieProvider(), 
+      create: (_) => CalorieProvider(),
       child: MaterialApp(
         title: 'Calorie Snap',
         theme: ThemeData(

@@ -52,9 +52,9 @@ class FoodDatabase {
     try {
       return await openDatabase(
         path,
-        version: 5, 
+        version: 5,
         onCreate: _createDB,
-        onUpgrade: _upgradeDB, 
+        onUpgrade: _upgradeDB,
       );
     } catch (e) {
       throw Exception('Error initializing database: $e');
@@ -99,11 +99,9 @@ class FoodDatabase {
 
   Future<List<Food>> getAllFoods() async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'foods',
-      orderBy: 'dateTime DESC'
-    );
-    
+    final List<Map<String, dynamic>> maps =
+        await db.query('foods', orderBy: 'dateTime DESC');
+
     return List.generate(maps.length, (i) {
       return Food(
         id: maps[i]['id'],

@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../food_db.dart';
 import '../utils/app_bar.dart';
 import '../widgets/food_dialogs.dart';
-import '../providers/calorie_provider.dart'; 
+import '../providers/calorie_provider.dart';
 
 class FoodPage extends StatefulWidget {
   const FoodPage({super.key, required this.title});
@@ -46,7 +46,8 @@ class _FoodPageState extends State<FoodPage> {
           itemBuilder: (context, index) {
             final food = foods[index];
             final previousFood = index > 0 ? foods[index - 1] : null;
-            final isNewDay = previousFood == null || food.dateTime.day != previousFood.dateTime.day;
+            final isNewDay = previousFood == null ||
+                food.dateTime.day != previousFood.dateTime.day;
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -55,7 +56,8 @@ class _FoodPageState extends State<FoodPage> {
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
                     child: Text(
                       '${food.dateTime.year}-${food.dateTime.month.toString().padLeft(2, '0')}-${food.dateTime.day.toString().padLeft(2, '0')}',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ),
                 Card(
@@ -90,7 +92,8 @@ class _FoodPageState extends State<FoodPage> {
                           icon: const Icon(Icons.delete),
                           onPressed: () async {
                             await _foodDb.deleteFood(food.id!);
-                            Provider.of<CalorieProvider>(context, listen: false).loadFoods();
+                            Provider.of<CalorieProvider>(context, listen: false)
+                                .loadFoods();
                           },
                         ),
                         IconButton(
