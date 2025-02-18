@@ -41,6 +41,16 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
     }
   }
 
+  Future<void> _searchFoodByGalleryImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      _setLoading(true);
+      final results = await _foodService.searchFoodByImage(pickedFile.path);
+      _navigateToResultsPage(results.foodItems);
+      _setLoading(false);
+    }
+  }
+
   void _setLoading(bool isLoading) {
     setState(() {
       _isLoading = isLoading;
@@ -131,6 +141,11 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
             ElevatedButton(
               onPressed: _searchFoodByImage,
               child: const Icon(Icons.camera_alt),
+            ),
+            const SizedBox(width: 10),
+            ElevatedButton(
+              onPressed: _searchFoodByGalleryImage,
+              child: const Icon(Icons.photo_library),
             ),
           ],
         ),
