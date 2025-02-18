@@ -19,8 +19,12 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
   final FoodService _foodService = FoodService();
   final ImagePicker _picker = ImagePicker();
   List<FoodInfoItem> _searchResults = [];
+  bool _isLoading = false;
 
   Future<void> _searchFood() async {
+    setState(() {
+      _isLoading = true;
+    });
     final query = _searchController.text;
     if (query.isNotEmpty) {
       final results = await _foodService.searchFood(query);
@@ -28,18 +32,30 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
         _searchResults = results.foodItems;
       });
     }
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   Future<void> _searchFoodByImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.camera);
     if (pickedFile != null) {
+      setState(() {
+        _isLoading = true;
+      });
       final results = await _foodService.searchFoodByImage(pickedFile.path);
-      Navigator.of(context).push(
+      Navigator.of(context)
+          .push(
         MaterialPageRoute(
           builder: (context) =>
               SearchFoodResultsPage(results: results.foodItems),
         ),
-      );
+      )
+          .then((_) {
+        setState(() {
+          _isLoading = false;
+        });
+      });
     }
   }
 
@@ -105,114 +121,119 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
         padding: const EdgeInsets.all(16.0),
         child: Stack(
           children: [
-            _searchResults.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        TextField(
-                          controller: _searchController,
-                          decoration:
-                              const InputDecoration(labelText: 'Food Name'),
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
+            _isLoading
+                ? Center(child: CircularProgressIndicator())
+                : _searchResults.isEmpty
+                    ? Center(
+                        child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            ElevatedButton(
-                              onPressed: _searchFood,
-                              child: const Icon(Icons.search),
+                            TextField(
+                              controller: _searchController,
+                              decoration:
+                                  const InputDecoration(labelText: 'Food Name'),
                             ),
-                            const SizedBox(width: 10),
-                            ElevatedButton(
-                              onPressed: _searchFoodByImage,
-                              child: const Icon(Icons.camera_alt),
+                            const SizedBox(height: 10),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: _searchFood,
+                                  child: const Icon(Icons.search),
+                                ),
+                                const SizedBox(width: 10),
+                                ElevatedButton(
+                                  onPressed: _searchFoodByImage,
+                                  child: const Icon(Icons.camera_alt),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                  )
-                : Column(
-                    children: [
-                      TextField(
-                        controller: _searchController,
-                        decoration:
-                            const InputDecoration(labelText: 'Food Name'),
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
+                      )
+                    : Column(
                         children: [
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: _searchFood,
-                              child: const Icon(Icons.search),
-                            ),
+                          TextField(
+                            controller: _searchController,
+                            decoration:
+                                const InputDecoration(labelText: 'Food Name'),
                           ),
-                          const SizedBox(width: 10),
+                          const SizedBox(height: 10),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: _searchFood,
+                                  child: const Icon(Icons.search),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: _searchFoodByImage,
+                                  child: const Icon(Icons.camera_alt),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          _buildLegend(context),
+                          const SizedBox(height: 20),
                           Expanded(
-                            child: ElevatedButton(
-                              onPressed: _searchFoodByImage,
-                              child: const Icon(Icons.camera_alt),
+                            child: ListView.builder(
+                              itemCount: _searchResults.length,
+                              itemBuilder: (context, index) {
+                                final item = _searchResults[index];
+                                return Card(
+                                  margin:
+                                      const EdgeInsets.symmetric(vertical: 5),
+                                  child: ListTile(
+                                    title: Text(item.foodName),
+                                    subtitle: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Icon(Icons.scale, size: 16),
+                                            const SizedBox(width: 4),
+                                            Text(item.weight),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Icon(Icons.local_fire_department,
+                                                size: 16),
+                                            const SizedBox(width: 4),
+                                            Text(item.calories),
+                                            const SizedBox(width: 20),
+                                            Icon(Icons.opacity, size: 16),
+                                            const SizedBox(width: 4),
+                                            Text(item.fat),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Icon(Icons.fastfood, size: 16),
+                                            const SizedBox(width: 4),
+                                            Text(item.carbs),
+                                            const SizedBox(width: 20),
+                                            Icon(Icons.fitness_center,
+                                                size: 16),
+                                            const SizedBox(width: 4),
+                                            Text(item.protein),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    onTap: () => _addFood(item),
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 20),
-                      _buildLegend(context),
-                      const SizedBox(height: 20),
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: _searchResults.length,
-                          itemBuilder: (context, index) {
-                            final item = _searchResults[index];
-                            return Card(
-                              margin: const EdgeInsets.symmetric(vertical: 5),
-                              child: ListTile(
-                                title: Text(item.foodName),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Icon(Icons.scale, size: 16),
-                                        const SizedBox(width: 4),
-                                        Text(item.weight),
-                                      ],
-                                    ),
-                                    Row(
-                                      children: [
-                                        Icon(Icons.local_fire_department,
-                                            size: 16),
-                                        const SizedBox(width: 4),
-                                        Text(item.calories),
-                                        const SizedBox(width: 20),
-                                        Icon(Icons.opacity, size: 16),
-                                        const SizedBox(width: 4),
-                                        Text(item.fat),
-                                      ],
-                                    ),
-                                    Row(
-                                      children: [
-                                        Icon(Icons.fastfood, size: 16),
-                                        const SizedBox(width: 4),
-                                        Text(item.carbs),
-                                        const SizedBox(width: 20),
-                                        Icon(Icons.fitness_center, size: 16),
-                                        const SizedBox(width: 4),
-                                        Text(item.protein),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                onTap: () => _addFood(item),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
             Positioned(
               right: 16,
               bottom: 16,
