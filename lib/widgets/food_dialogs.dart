@@ -1,4 +1,4 @@
-import 'package:calorie_snap/food.dart';
+import 'package:calorie_snap/models/food.dart';
 import 'package:calorie_snap/providers/calorie_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

@@ -1,6 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'food.dart'; // 新增這行導入Food類別
+import 'models/food.dart'; // 新增這行導入Food類別
 
 class FoodDatabase {
   static final FoodDatabase instance = FoodDatabase._init();

@@ -1,4 +1,4 @@
-import 'package:calorie_snap/food.dart';
+import 'package:calorie_snap/models/food.dart';
 import 'package:calorie_snap/providers/calorie_provider.dart';
 import 'package:calorie_snap/utils/app_bar.dart';
 import 'package:calorie_snap/widgets/circular_calorie_indicator.dart';

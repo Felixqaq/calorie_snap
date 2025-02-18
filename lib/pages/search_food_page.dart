@@ -1,10 +1,11 @@
+import 'package:calorie_snap/models/food_info_item.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/food_service.dart';
 import '../providers/calorie_provider.dart';
-import '../food.dart';
 import '../utils/app_bar.dart';
+import 'search_food_results_page.dart';
 
 class SearchFoodPage extends StatefulWidget {
   const SearchFoodPage({super.key});
@@ -24,7 +25,7 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
     if (query.isNotEmpty) {
       final results = await _foodService.searchFood(query);
       setState(() {
-        _searchResults = results;
+        _searchResults = results.foodItems;
       });
     }
   }
@@ -33,9 +34,12 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
     final pickedFile = await _picker.pickImage(source: ImageSource.camera);
     if (pickedFile != null) {
       final results = await _foodService.searchFoodByImage(pickedFile.path);
-      setState(() {
-        _searchResults = results;
-      });
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) =>
+              SearchFoodResultsPage(results: results.foodItems),
+        ),
+      );
     }
   }
 
@@ -47,14 +51,7 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
   }
 
   void _addFood(FoodInfoItem item) {
-    final food = Food(
-      name: item.foodName,
-      calories: int.parse(item.calories.replaceAll('kcal', '').trim()),
-      dateTime: DateTime.now(),
-      fat: double.tryParse(item.fat.replaceAll('g', '').trim()),
-      carbs: double.tryParse(item.carbs.replaceAll('g', '').trim()),
-      protein: double.tryParse(item.protein.replaceAll('g', '').trim()),
-    );
+    final food = FoodService.parseFood(item);
     Provider.of<CalorieProvider>(context, listen: false).addFood(food);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('${item.foodName} added')),
@@ -66,6 +63,12 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
+        Icon(Icons.scale, size: 16),
+        Text('Weight',
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(fontSize: 12, color: Colors.grey)),
         Icon(Icons.local_fire_department, size: 16),
         Text('Calories',
             style: Theme.of(context)
@@ -170,6 +173,13 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
+                                    Row(
+                                      children: [
+                                        Icon(Icons.scale, size: 16),
+                                        const SizedBox(width: 4),
+                                        Text(item.weight),
+                                      ],
+                                    ),
                                     Row(
                                       children: [
                                         Icon(Icons.local_fire_department,
