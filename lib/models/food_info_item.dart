@@ -28,6 +28,7 @@ class FoodInfoItem {
 }
 
 class CompositeFoodInfoItem {
+  final String foodName = '';
   final List<FoodInfoItem> foodItems;
 
   CompositeFoodInfoItem({required this.foodItems});

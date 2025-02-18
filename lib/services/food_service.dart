@@ -2,7 +2,7 @@ import 'package:calorie_snap/models/food.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:calorie_snap/models/food_info_item.dart'; // 新增這行
+import 'package:calorie_snap/models/food_info_item.dart';
 
 class FoodService {
   static String _initializeBaseUrl() {

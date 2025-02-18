@@ -10,13 +10,25 @@ class SearchFoodResultsPage extends StatelessWidget {
   const SearchFoodResultsPage({Key? key, required this.results})
       : super(key: key);
 
-
   void _addFood(BuildContext context, FoodInfoItem item) {
     final food = FoodService.parseFood(item);
     Provider.of<CalorieProvider>(context, listen: false).addFood(food);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('${item.foodName} added')),
     );
+  }
+
+  void _addAllFoods(BuildContext context) {
+    final calorieProvider =
+        Provider.of<CalorieProvider>(context, listen: false);
+    for (var item in results) {
+      final food = FoodService.parseFood(item);
+      calorieProvider.addFood(food);
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('All foods added')),
+    );
+    Navigator.pop(context);
   }
 
   static Row _buildLegend(BuildContext context) {
@@ -60,7 +72,15 @@ class SearchFoodResultsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Search Results')),
+      appBar: AppBar(
+        title: Text('Search Results'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () => _addAllFoods(context),
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

@@ -11,34 +11,33 @@ class CalorieProvider extends ChangeNotifier {
   List<Food> get foods => _foods;
 
   Future<void> loadFoods() async {
-    final foods = await _foodDb.getAllFoods();
-    _updateFoodsAndCalories(foods);
+    await updateFoodsAndCalories();
   }
 
   Future<void> addFood(Food food) async {
     await _foodDb.insertFood(food);
-    await loadFoods();
+    await updateFoodsAndCalories();
   }
 
   Future<void> updateFood(Food food) async {
     await _foodDb.updateFood(food);
-    await loadFoods();
+    await updateFoodsAndCalories();
   }
 
   Future<void> deleteFood(int id) async {
     await _foodDb.deleteFood(id);
-    await loadFoods();
+    await updateFoodsAndCalories();
   }
 
   Future<List<Food>> getFoodsByDate(DateTime date) async {
     return await _foodDb.getFoodsByDate(date);
   }
 
-  void _updateFoodsAndCalories(List<Food> foods) {
-    _foods = foods.toList();
+  Future<void> updateFoodsAndCalories() async {
+    _foods = await _foodDb.getAllFoods();
     final today = DateTime.now();
     final todayFoods =
-        foods.where((food) => food.dateTime.day == today.day).toList();
+        _foods.where((food) => food.dateTime.day == today.day).toList();
     _todayCalories = todayFoods.fold(0, (sum, food) => sum + food.calories);
     notifyListeners();
   }
