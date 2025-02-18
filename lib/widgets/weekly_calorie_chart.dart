@@ -27,7 +27,7 @@ class WeeklyCalorieChart extends StatelessWidget {
                 color: Colors.greenAccent,
                 barWidth: 2,
                 isStrokeCapRound: true,
-                belowBarData: BarAreaData(show: true, color: Colors.greenAccent.withOpacity(0.1)),
+                belowBarData: BarAreaData(show: true, color: Colors.greenAccent.withAlpha((0.1 * 255).toInt())),
                 dotData: FlDotData(show: false),
               ),
             ],

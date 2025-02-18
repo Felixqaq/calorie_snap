@@ -1,4 +1,4 @@
-import 'package:calorie_snap/models/food_info_item.dart';
+import 'package:calorie_snap/models/food_info.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
@@ -6,6 +6,7 @@ import '../services/food_service.dart';
 import '../providers/calorie_provider.dart';
 import '../utils/app_bar.dart';
 import 'search_food_results_page.dart';
+
 
 class SearchFoodPage extends StatefulWidget {
   const SearchFoodPage({super.key});
@@ -18,7 +19,7 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
   final TextEditingController _searchController = TextEditingController();
   final FoodService _foodService = FoodService();
   final ImagePicker _picker = ImagePicker();
-  List<FoodInfoItem> _searchResults = [];
+  List<FoodInfo> _searchResults = [];
   bool _isLoading = false;
 
   Future<void> _searchFood() async {
@@ -57,7 +58,7 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
     });
   }
 
-  void _navigateToResultsPage(List<FoodInfoItem> results) {
+  void _navigateToResultsPage(List<FoodInfo> results) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => SearchFoodResultsPage(results: results),
@@ -74,7 +75,7 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
     });
   }
 
-  void _addFood(FoodInfoItem item) {
+  void _addFood(FoodInfo item) {
     final food = FoodService.parseFood(item);
     Provider.of<CalorieProvider>(context, listen: false).addFood(food);
     ScaffoldMessenger.of(context).showSnackBar(

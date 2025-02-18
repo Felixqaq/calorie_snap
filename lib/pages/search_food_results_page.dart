@@ -1,16 +1,16 @@
-import 'package:calorie_snap/models/food_info_item.dart';
+import 'package:calorie_snap/models/food_info.dart';
 import 'package:calorie_snap/services/food_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/calorie_provider.dart';
 
 class SearchFoodResultsPage extends StatelessWidget {
-  final List<FoodInfoItem> results;
+  final List<FoodInfo> results;
 
   const SearchFoodResultsPage({Key? key, required this.results})
       : super(key: key);
 
-  void _addFood(BuildContext context, FoodInfoItem item) {
+  void _addFood(BuildContext context, FoodInfo item) {
     final food = FoodService.parseFood(item);
     Provider.of<CalorieProvider>(context, listen: false).addFood(food);
     ScaffoldMessenger.of(context).showSnackBar(

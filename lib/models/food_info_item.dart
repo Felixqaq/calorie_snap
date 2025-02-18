@@ -1,10 +1,18 @@
-class FoodInfoItem {
+import 'package:calorie_snap/models/food_info.dart';
+
+class FoodInfoItem implements FoodInfo {
   final String foodName;
+  @override
   final String weight;
+  @override
   final String calories;
+  @override
   final String fat;
+  @override
   final String carbs;
+  @override
   final String protein;
+  final List<FoodInfo> foodItems = [];
 
   FoodInfoItem({
     required this.foodName,
@@ -25,17 +33,16 @@ class FoodInfoItem {
       protein: json['protein'],
     );
   }
-}
 
-class CompositeFoodInfoItem {
-  final String foodName = '';
-  final List<FoodInfoItem> foodItems;
-
-  CompositeFoodInfoItem({required this.foodItems});
-
-  factory CompositeFoodInfoItem.fromJson(List<dynamic> jsonList) {
-    List<FoodInfoItem> items =
-        jsonList.map((json) => FoodInfoItem.fromJson(json)).toList();
-    return CompositeFoodInfoItem(foodItems: items);
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      'food_name': foodName,
+      'weight': weight,
+      'calories': calories,
+      'fat': fat,
+      'carbs': carbs,
+      'protein': protein,
+    };
   }
 }
