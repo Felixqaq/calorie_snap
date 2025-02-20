@@ -61,12 +61,12 @@ class _FoodPageState extends State<FoodPage> {
                     leading: CircleAvatar(
                       child: Text(food.name[0]),
                     ),
-                    title: Text(
-                      food.name,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    title: Row(
+                      children: [
+                        Text(food.nameZh),
+                        const SizedBox(width: 8),
+                        Text(food.name, style: TextStyle(color: Colors.grey)),
+                      ],
                     ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

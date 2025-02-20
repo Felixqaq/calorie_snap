@@ -89,7 +89,7 @@ class FoodService {
     if (response.statusCode == 200) {
       final String responseString = utf8.decode(response.bodyBytes);
       debugPrint('responseString: $responseString');
-      return responseString;
+      return responseString.replaceAll('"', ''); // 去掉雙引號
     } else {
       debugPrint('Failed to translate text. Status code: ${response.statusCode}');
       debugPrint('Response body: ${response.body}');

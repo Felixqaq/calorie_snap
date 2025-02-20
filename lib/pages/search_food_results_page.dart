@@ -99,7 +99,7 @@ class SearchFoodResultsPage extends StatelessWidget {
                         children: [
                           Text(item.foodNameZh),
                           const SizedBox(width: 8),
-                          Text('(${item.foodName})', style: TextStyle(color: Colors.grey)),                        ],
+                          Text(item.foodName, style: TextStyle(color: Colors.grey)),                        ],
                       ),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
