@@ -68,9 +68,39 @@ class FoodService {
     return NullFoodInfoItem();
   }
 
+  Future<String> translateText(String text, {String dest = 'zh-tw'}) async {
+    debugPrint('翻譯文字: $text 到 $dest');
+
+    final String baseUrl = _initializeBaseUrl();
+
+    if (baseUrl.isEmpty) {
+      debugPrint('baseUrl Empty');
+      return '';
+    }
+
+    debugPrint('baseUrl: $baseUrl');
+
+    final url = Uri.parse('$baseUrl/translate/?text=$text&dest=$dest');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      final String responseString = utf8.decode(response.bodyBytes);
+      debugPrint('responseString: $responseString');
+      return responseString;
+    } else {
+      debugPrint('Failed to translate text. Status code: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
+      return '';
+    }
+  }
+
   static Food parseFood(FoodInfo item) {
     return Food(
       name: item.foodName,
+      nameZh: item.foodNameZh,
       calories: int.parse(item.calories.replaceAll('kcal', '').trim()),
       dateTime: DateTime.now(),
       fat: double.tryParse(item.fat.replaceAll('g', '').trim()),

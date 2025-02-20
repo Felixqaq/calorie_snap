@@ -1,6 +1,7 @@
 class Food {
   final int? id;
   final String name;
+  final String nameZh;
   final int calories;
   final DateTime dateTime;
   final double? fat;
@@ -10,6 +11,7 @@ class Food {
   Food({
     this.id,
     required this.name,
+    required this.nameZh,
     required this.calories,
     required this.dateTime,
     this.fat,
@@ -21,6 +23,7 @@ class Food {
     return {
       'id': id,
       'name': name,
+      'nameZh': nameZh,
       'calories': calories,
       'dateTime': dateTime.toIso8601String(),
       'fat': fat,

@@ -21,7 +21,7 @@ class FoodDatabase {
     try {
       return await openDatabase(
         path,
-        version: 5,
+        version: 6,
         onCreate: _createDB,
         onUpgrade: _upgradeDB,
       );
@@ -39,7 +39,8 @@ class FoodDatabase {
         dateTime TEXT NOT NULL,
         fat REAL,
         carbs REAL,
-        protein REAL
+        protein REAL,
+        nameZh TEXT
       )
     ''');
   }
@@ -49,6 +50,7 @@ class FoodDatabase {
     final hasFat = tableInfo.any((col) => col['name'] == 'fat');
     final hasCarbs = tableInfo.any((col) => col['name'] == 'carbs');
     final hasProtein = tableInfo.any((col) => col['name'] == 'protein');
+    final hasNameZh = tableInfo.any((col) => col['name'] == 'nameZh');
 
     if (!hasFat) {
       await db.execute('ALTER TABLE foods ADD COLUMN fat REAL;');
@@ -58,6 +60,9 @@ class FoodDatabase {
     }
     if (!hasProtein) {
       await db.execute('ALTER TABLE foods ADD COLUMN protein REAL;');
+    }
+    if (!hasNameZh) {
+      await db.execute('ALTER TABLE foods ADD COLUMN nameZh TEXT;');
     }
   }
 
@@ -80,6 +85,7 @@ class FoodDatabase {
         fat: maps[i]['fat'],
         carbs: maps[i]['carbs'],
         protein: maps[i]['protein'],
+        nameZh: maps[i]['nameZh'] ?? '',
       );
     });
   }
@@ -101,6 +107,7 @@ class FoodDatabase {
         fat: maps[i]['fat'],
         carbs: maps[i]['carbs'],
         protein: maps[i]['protein'],
+        nameZh: maps[i]['nameZh'] ?? '',
       );
     });
   }

@@ -2,6 +2,7 @@ import 'package:calorie_snap/models/food.dart';
 import 'package:calorie_snap/providers/calorie_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:calorie_snap/services/food_service.dart';
 
 class FoodDialogs {
   static Future<void> showAddFoodDialog(BuildContext context) async {
@@ -183,13 +184,18 @@ class FoodDialogs {
       TextEditingController proteinController,
       DateTime selectedDate) async {
     final name = nameController.text;
+    final translatedNameEn = await FoodService().translateText(name, dest: 'en');
+    final translatedNameZh = await FoodService().translateText(name, dest: 'zh-tw');
+    final nameZh = _isChinese(name) ? name : translatedNameZh;
+    final nameEn = _isChinese(name) ? translatedNameEn : name;
     final calories = int.tryParse(caloriesController.text) ?? 0;
     final fat = double.tryParse(fatController.text) ?? 0;
     final carbs = double.tryParse(carbsController.text) ?? 0;
     final protein = double.tryParse(proteinController.text) ?? 0;
     if (name.isNotEmpty && calories > 0) {
       final food = Food(
-        name: name,
+        name: nameEn,
+        nameZh: nameZh,
         calories: calories,
         dateTime: selectedDate,
         fat: fat,
@@ -197,37 +203,46 @@ class FoodDialogs {
         protein: protein,
       );
       await Provider.of<CalorieProvider>(context, listen: false).addFood(food);
-      Navigator.of(context).pop(); // 移動到這裡
+      Navigator.of(context).pop();
     }
   }
 
   static Future<void> _updateFood(
-      BuildContext context,
-      int id,
-      TextEditingController nameController,
-      TextEditingController caloriesController,
-      TextEditingController fatController,
-      TextEditingController carbsController,
-      TextEditingController proteinController,
-      DateTime selectedDate) async {
-    final name = nameController.text;
-    final calories = int.tryParse(caloriesController.text) ?? 0;
-    final fat = double.tryParse(fatController.text);
-    final carbs = double.tryParse(carbsController.text);
-    final protein = double.tryParse(proteinController.text);
-    if (name.isNotEmpty && calories > 0) {
-      final food = Food(
-        id: id,
-        name: name,
-        calories: calories,
-        dateTime: selectedDate,
-        fat: fat,
-        carbs: carbs,
-        protein: protein,
-      );
-      await Provider.of<CalorieProvider>(context, listen: false)
-          .updateFood(food);
-      Navigator.of(context).pop();
-    }
+    BuildContext context,
+    int id,
+    TextEditingController nameController,
+    TextEditingController caloriesController,
+    TextEditingController fatController,
+    TextEditingController carbsController,
+    TextEditingController proteinController,
+    DateTime selectedDate) async {
+      final name = nameController.text;
+      final translatedNameEn = await FoodService().translateText(name, dest: 'en');
+      final translatedNameZh = await FoodService().translateText(name, dest: 'zh-tw');
+      final nameZh = _isChinese(name) ? name : translatedNameZh;
+      final nameEn = _isChinese(name) ? translatedNameEn : name;
+      final calories = int.tryParse(caloriesController.text) ?? 0;
+      final fat = double.tryParse(fatController.text);
+      final carbs = double.tryParse(carbsController.text);
+      final protein = double.tryParse(proteinController.text);
+      if (name.isNotEmpty && calories > 0) {
+        final food = Food(
+          id: id,
+          name: nameEn,
+          nameZh: nameZh,
+          calories: calories,
+          dateTime: selectedDate,
+          fat: fat,
+          carbs: carbs,
+          protein: protein,
+          );
+        await Provider.of<CalorieProvider>(context, listen: false).updateFood(food);
+        Navigator.of(context).pop();
+      }
+  }
+
+  static bool _isChinese(String text) {
+    final chineseRegex = RegExp(r'[\u4e00-\u9fa5]');
+    return chineseRegex.hasMatch(text);
   }
 }
