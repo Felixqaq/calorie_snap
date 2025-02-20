@@ -32,30 +32,47 @@ class _FoodPageState extends State<FoodPage> {
   @override
   Widget build(BuildContext context) {
     final foods = Provider.of<CalorieProvider>(context).foods;
+    Map<String, List<Food>> groupedFoods = {};
+    Map<String, int> totalCaloriesPerDay = {};
+
+    for (var food in foods) {
+      String date = '${food.dateTime.year}-${food.dateTime.month.toString().padLeft(2, '0')}-${food.dateTime.day.toString().padLeft(2, '0')}';
+      if (!groupedFoods.containsKey(date)) {
+        groupedFoods[date] = [];
+        totalCaloriesPerDay[date] = 0;
+      }
+      groupedFoods[date]!.add(food);
+      totalCaloriesPerDay[date] = totalCaloriesPerDay[date]! + food.calories;
+    }
+
     return Scaffold(
       appBar: buildAppBar(context, widget.title),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: ListView.builder(
-          itemCount: foods.length,
-          itemBuilder: (context, index) {
-            final food = foods[index];
-            final previousFood = index > 0 ? foods[index - 1] : null;
-            final isNewDay = previousFood == null ||
-                food.dateTime.day != previousFood.dateTime.day;
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (isNewDay)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Text(
-                      '${food.dateTime.year}-${food.dateTime.month.toString().padLeft(2, '0')}-${food.dateTime.day.toString().padLeft(2, '0')}',
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
+        child: ListView(
+          children: groupedFoods.keys.map((date) {
+            return ExpansionTile(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    date,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
-                Card(
+                  Row(
+                    children: [
+                      const Icon(Icons.local_fire_department, color: Colors.grey),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${totalCaloriesPerDay[date]}',
+                        style: const TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              children: groupedFoods[date]!.map((food) {
+                return Card(
                   margin: const EdgeInsets.symmetric(vertical: 8.0),
                   child: ListTile(
                     leading: CircleAvatar(
@@ -66,9 +83,9 @@ class _FoodPageState extends State<FoodPage> {
                       textBaseline: TextBaseline.alphabetic,
                       children: [
                         Text(
-                            food.nameZh,
-                            style: TextStyle(fontSize: 18), 
-                          ),
+                          food.nameZh,
+                          style: TextStyle(fontSize: 18),
+                        ),
                         const SizedBox(width: 8),
                         Text(food.name, style: TextStyle(color: Colors.grey)),
                       ],
@@ -103,10 +120,10 @@ class _FoodPageState extends State<FoodPage> {
                       ],
                     ),
                   ),
-                ),
-              ],
+                );
+              }).toList(),
             );
-          },
+          }).toList(),
         ),
       ),
       floatingActionButton: FloatingActionButton(
