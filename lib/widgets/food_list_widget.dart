@@ -54,11 +54,17 @@ class FoodListWidget extends StatelessWidget {
                               const Icon(Icons.fastfood),
                         ),
                       ),
-                      title: Text(
-                        food.name,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
+                      title: Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          Text(
+                            food.nameZh,
+                            style: TextStyle(fontSize: 18), 
+                          ),
+                          const SizedBox(width: 4),
+                          Text(food.name, style: TextStyle(color: Colors.grey)),
+                        ],
                       ),
                       subtitle: Text(
                         '${food.calories} 卡路里',

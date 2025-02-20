@@ -62,8 +62,13 @@ class _FoodPageState extends State<FoodPage> {
                       child: Text(food.name[0]),
                     ),
                     title: Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
                       children: [
-                        Text(food.nameZh),
+                        Text(
+                            food.nameZh,
+                            style: TextStyle(fontSize: 18), 
+                          ),
                         const SizedBox(width: 8),
                         Text(food.name, style: TextStyle(color: Colors.grey)),
                       ],

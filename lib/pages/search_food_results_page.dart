@@ -96,10 +96,16 @@ class SearchFoodResultsPage extends StatelessWidget {
                     margin: const EdgeInsets.symmetric(vertical: 5),
                     child: ListTile(
                       title: Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
                         children: [
-                          Text(item.foodNameZh),
+                          Text(
+                            item.foodNameZh,
+                            style: TextStyle(fontSize: 18), 
+                          ),
                           const SizedBox(width: 8),
-                          Text(item.foodName, style: TextStyle(color: Colors.grey)),                        ],
+                          Text(item.foodName, style: TextStyle(color: Colors.grey)),
+                        ],
                       ),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
