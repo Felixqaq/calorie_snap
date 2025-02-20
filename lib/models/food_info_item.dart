@@ -2,6 +2,7 @@ import 'package:calorie_snap/models/food_info.dart';
 
 class FoodInfoItem implements FoodInfo {
   final String foodName;
+  final String foodNameZh;
   @override
   final String weight;
   @override
@@ -16,6 +17,7 @@ class FoodInfoItem implements FoodInfo {
 
   FoodInfoItem({
     required this.foodName,
+    required this.foodNameZh,
     required this.weight,
     required this.calories,
     required this.fat,
@@ -26,6 +28,7 @@ class FoodInfoItem implements FoodInfo {
   factory FoodInfoItem.fromJson(Map<String, dynamic> json) {
     return FoodInfoItem(
       foodName: json['food_name'],
+      foodNameZh: json['food_name_zh'],
       weight: json['weight'],
       calories: json['calories'],
       fat: json['fat'],
@@ -38,6 +41,7 @@ class FoodInfoItem implements FoodInfo {
   Map<String, dynamic> toJson() {
     return {
       'food_name': foodName,
+      'food_name_zh': foodNameZh,
       'weight': weight,
       'calories': calories,
       'fat': fat,

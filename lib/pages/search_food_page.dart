@@ -79,7 +79,7 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
     final food = FoodService.parseFood(item);
     Provider.of<CalorieProvider>(context, listen: false).addFood(food);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${item.foodName} added')),
+      SnackBar(content: Text('${item.foodNameZh} added')),
     );
     _clearSearch();
   }
@@ -190,7 +190,13 @@ class _SearchFoodPageState extends State<SearchFoodPage> {
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 5),
                 child: ListTile(
-                  title: Text(item.foodName),
+                  title: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(item.foodNameZh),
+                      Text(item.foodName, style: TextStyle(color: Colors.grey)),
+                    ],
+                  ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

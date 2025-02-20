@@ -14,7 +14,7 @@ class SearchFoodResultsPage extends StatelessWidget {
     final food = FoodService.parseFood(item);
     Provider.of<CalorieProvider>(context, listen: false).addFood(food);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${item.foodName} added')),
+      SnackBar(content: Text('${item.foodNameZh} 已新增')),
     );
   }
 
@@ -26,7 +26,7 @@ class SearchFoodResultsPage extends StatelessWidget {
       calorieProvider.addFood(food);
     }
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('All foods added')),
+      SnackBar(content: Text('所有食物已新增')),
     );
     Navigator.pop(context);
   }
@@ -95,7 +95,12 @@ class SearchFoodResultsPage extends StatelessWidget {
                   return Card(
                     margin: const EdgeInsets.symmetric(vertical: 5),
                     child: ListTile(
-                      title: Text(item.foodName),
+                      title: Row(
+                        children: [
+                          Text(item.foodNameZh),
+                          const SizedBox(width: 8),
+                          Text('(${item.foodName})', style: TextStyle(color: Colors.grey)),                        ],
+                      ),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [

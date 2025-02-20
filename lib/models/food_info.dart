@@ -1,5 +1,6 @@
 abstract class FoodInfo {
   String get foodName;
+  String get foodNameZh;
   List<FoodInfo> get foodItems;
   String get weight;
   String get calories;

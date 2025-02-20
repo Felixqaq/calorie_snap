@@ -27,20 +27,17 @@ class FoodService {
     final url = Uri.parse('$baseUrl/search_food/?query=$query');
 
     final response = await http.get(url);
-
     if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body) as List;
-      debugPrint('回應資料: $responseData');
-      final compositeFoodInfoJson = {
-        'food_name': 'Composite Food',
-        'food_items': responseData,
-      };
-      return CompositeFoodInfoItem.fromJson(compositeFoodInfoJson);
-    } else {
-      debugPrint('\x1B[31m錯誤: ${response.statusCode}\x1B[0m');
-      return NullFoodInfoItem();
+      final String responseString = utf8.decode(response.bodyBytes);
+      final responseData = jsonDecode(responseString);
+      List<dynamic> jsonData = jsonDecode(responseData);
+      CompositeFoodInfoItem foodItems = CompositeFoodInfoItem.fromJson(jsonData, '');
+      debugPrint('foodItems: $responseString');
+      return foodItems;
     }
+    return NullFoodInfoItem();
   }
+
 
   Future<FoodInfo> searchFoodByImage(String imagePath) async {
     debugPrint('搜尋食物圖片: $imagePath');
@@ -59,22 +56,14 @@ class FoodService {
     request.files.add(await http.MultipartFile.fromPath('image', imagePath));
 
     final response = await request.send();
-    if (response.statusCode == 200) {
-      final String responseString = await response.stream.bytesToString();
-      final Map<String, dynamic> responseData = jsonDecode(responseString);
-
-      if (responseData.containsKey('recognized_foods') &&
-          responseData['recognized_foods'] is List) {
-        final List<dynamic> foodList = responseData['recognized_foods'];
-        final Map<String, dynamic> compositeFoodInfoJson = {
-          'food_name': 'Composite Food',
-          'food_items': foodList,
-        };
-        return CompositeFoodInfoItem.fromJson(compositeFoodInfoJson);
-      } else {
-        debugPrint('回應格式錯誤: $responseData');
-        return NullFoodInfoItem();
-      }
+    final responseBody = await http.Response.fromStream(response);
+    if (responseBody.statusCode == 200) {
+      final String responseString = utf8.decode(responseBody.bodyBytes);
+      final responseData = jsonDecode(responseString);
+      List<dynamic> jsonData = jsonDecode(responseData);
+      
+      CompositeFoodInfoItem foodItems = CompositeFoodInfoItem.fromJson(jsonData, '');
+      return foodItems;
     }
     return NullFoodInfoItem();
   }

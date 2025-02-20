@@ -81,7 +81,7 @@ class WeeklyCalorieChart extends StatelessWidget {
             ),
             gridData: FlGridData(show: true, drawVerticalLine: false, getDrawingHorizontalLine: (value) {
               return FlLine(
-                color: Colors.grey.withOpacity(0.2),
+                color: Colors.grey.withAlpha((0.2 * 255).toInt()),
                 strokeWidth: 1,
               );
             }),

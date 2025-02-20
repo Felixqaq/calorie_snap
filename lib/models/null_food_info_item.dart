@@ -3,6 +3,8 @@ import 'package:calorie_snap/models/food_info.dart';
 class NullFoodInfoItem implements FoodInfo {
   @override
   String get foodName => 'No Food';
+  @override
+  String get foodNameZh => 'No Food';
   final List<FoodInfo> foodItems = [];
   @override
   String get weight => '0';
@@ -19,6 +21,7 @@ class NullFoodInfoItem implements FoodInfo {
   Map<String, dynamic> toJson() {
     return {
       'food_name': foodName,
+      'food_name_zh': foodNameZh,
       'weight': '0',
       'calories': '0',
       'fat': '0',
