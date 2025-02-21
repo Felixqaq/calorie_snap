@@ -41,4 +41,9 @@ class CalorieProvider extends ChangeNotifier {
     _todayCalories = todayFoods.fold(0, (sum, food) => sum + food.calories);
     notifyListeners();
   }
+
+  void updateFoodGroup(Food food, String newGroup) async {
+    food.group = newGroup;
+    await updateFoodsAndCalories();
+  }
 }

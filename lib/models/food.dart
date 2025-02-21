@@ -7,7 +7,7 @@ class Food {
   final double? fat;
   final double? carbs;
   final double? protein;
-  final String? group;
+  String? group;
 
   Food({
     this.id,

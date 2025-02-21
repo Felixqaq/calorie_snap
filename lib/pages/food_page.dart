@@ -111,6 +111,29 @@ class _FoodPageState extends State<FoodPage> {
     });
   }
 
+  Future<void> _cancelGroupForSelectedItems() async {
+    final calorieProvider = Provider.of<CalorieProvider>(context, listen: false);
+    for (var id in selectedItems) {
+      final food = calorieProvider.foods.firstWhere((food) => food.id == id);
+      final updatedFood = Food(
+        id: food.id,
+        name: food.name,
+        nameZh: food.nameZh,
+        calories: food.calories,
+        dateTime: food.dateTime,
+        fat: food.fat,
+        carbs: food.carbs,
+        protein: food.protein,
+        group: '', // 清除群組設定
+      );
+      await calorieProvider.updateFood(updatedFood);
+    }
+    setState(() {
+      selectedItems.clear();
+      isMultiSelectMode = false;
+    });
+  }
+
   void _showFoodDetails(Food food) {
     showDialog(
       context: context,
@@ -155,6 +178,7 @@ class _FoodPageState extends State<FoodPage> {
               Text(
                 '日期: ${food.dateTime.year}-${food.dateTime.month.toString().padLeft(2, '0')}-${food.dateTime.day.toString().padLeft(2, '0')} ${food.dateTime.hour.toString().padLeft(2, '0')}:${food.dateTime.minute.toString().padLeft(2, '0')}',
               ),
+              Text('群組: ${food.group ?? "無"}'),
             ],
           ),
         );
@@ -162,35 +186,44 @@ class _FoodPageState extends State<FoodPage> {
     );
   }
 
+  List<Food> sortFoodsByDate(List<Food> foods) {
+    foods.sort((a, b) => a.dateTime.compareTo(b.dateTime));
+    return foods;
+  }
+
+  Map<DateTime, Map<String, List<Food>>> groupFoodsByDateAndGroup(List<Food> foods) {
+    Map<DateTime, Map<String, List<Food>>> grouped = {};
+    for (var food in foods) {
+      final dateKey = DateTime(food.dateTime.year, food.dateTime.month, food.dateTime.day);
+      final groupKey = food.group ?? '';
+      grouped.putIfAbsent(dateKey, () => {});
+      grouped[dateKey]!.putIfAbsent(groupKey, () => []);
+      grouped[dateKey]![groupKey]!.add(food);
+    }
+  
+    return grouped;
+  }
+
   @override
   Widget build(BuildContext context) {
     final foods = Provider.of<CalorieProvider>(context).foods;
-    Map<String, List<Food>> groupedFoods = {};
-    Map<String, int> totalCaloriesPerDay = {};
-
-    for (var food in foods) {
-      String date = '${food.dateTime.year}-${food.dateTime.month.toString().padLeft(2, '0')}-${food.dateTime.day.toString().padLeft(2, '0')}';
-      if (!groupedFoods.containsKey(date)) {
-        groupedFoods[date] = [];
-        totalCaloriesPerDay[date] = 0;
-      }
-      groupedFoods[date]!.add(food);
-      totalCaloriesPerDay[date] = totalCaloriesPerDay[date]! + food.calories;
-    }
-
+    final groupedFoods = groupFoodsByDateAndGroup(foods);
     return Scaffold(
       appBar: buildAppBar(context, widget.title),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListView(
-          children: groupedFoods.keys.map((date) {
+          children: groupedFoods.keys.map((dateKey) {
+            final totalCaloriesForDate = groupedFoods[dateKey]!.values
+                .expand((groupFoods) => groupFoods)
+                .fold(0, (sum, food) => sum + food.calories);
             return ExpansionTile(
               initiallyExpanded: true,
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    date,
+                    '${dateKey.year}-${dateKey.month.toString().padLeft(2, '0')}-${dateKey.day.toString().padLeft(2, '0')}',
                     style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   Row(
@@ -198,72 +231,163 @@ class _FoodPageState extends State<FoodPage> {
                       const Icon(Icons.local_fire_department, color: Colors.grey),
                       const SizedBox(width: 4),
                       Text(
-                        '${totalCaloriesPerDay[date]}',
+                        '$totalCaloriesForDate',
                         style: const TextStyle(fontSize: 16, color: Colors.grey),
                       ),
                     ],
                   ),
                 ],
               ),
-              children: groupedFoods[date]!.map((food) {
-                return GestureDetector(
-                  onLongPress: () {
-                    setState(() {
-                      isMultiSelectMode = true;
-                      selectedItems.add(food.id!);
-                    });
-                  },
-                  onTap: () {
-                    if (isMultiSelectMode) {
-                      _toggleSelection(food.id!);
-                    } else {
-                      _showFoodDetails(food);
-                    }
-                  },
-                  child: Container(
-                    color: Theme.of(context).colorScheme.surface,
-                    child: Card(
-                      margin: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          child: Text(food.name[0]),
-                        ),
-                        title: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.baseline,
-                            textBaseline: TextBaseline.alphabetic,
-                            children: [
-                              Text(
-                                food.nameZh,
-                                style: TextStyle(fontSize: 18),
+              children: groupedFoods[dateKey]!.entries.expand<Widget>((entry) {
+                final groupKey = entry.key;
+                final groupFoods = entry.value;
+                if (groupKey.isEmpty) {
+                  return groupFoods.map((food) {
+                    return GestureDetector(
+                      onLongPress: () {
+                        setState(() {
+                          isMultiSelectMode = true;
+                          selectedItems.add(food.id!);
+                        });
+                      },
+                      onTap: () {
+                        if (isMultiSelectMode) {
+                          _toggleSelection(food.id!);
+                        } else {
+                          _showFoodDetails(food);
+                        }
+                      },
+                      child: Container(
+                        color: Theme.of(context).colorScheme.surface,
+                        child: Card(
+                          margin: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              child: Text(food.name[0]),
+                            ),
+                            title: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.baseline,
+                                textBaseline: TextBaseline.alphabetic,
+                                children: [
+                                  Text(
+                                    food.nameZh,
+                                    style: TextStyle(fontSize: 18),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(food.name, style: TextStyle(color: Colors.grey)),
+                                ],
                               ),
-                              const SizedBox(width: 8),
-                              Text(food.name, style: TextStyle(color: Colors.grey)),
-                            ],
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 8),
+                                Text('${food.calories} 卡路里'),
+                                const SizedBox(height: 8),
+                                Text(
+                                  '${food.dateTime.year}-${food.dateTime.month.toString().padLeft(2, '0')}-${food.dateTime.day.toString().padLeft(2, '0')} ${food.dateTime.hour.toString().padLeft(2, '0')}:${food.dateTime.minute.toString().padLeft(2, '0')}',
+                                  style: const TextStyle(color: Colors.grey),
+                                ),
+                              ],
+                            ),
+                            trailing: isMultiSelectMode
+                                ? (selectedItems.contains(food.id)
+                                    ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary)
+                                    : null)
+                                : null,
                           ),
                         ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 8),
-                            Text('${food.calories} 卡路里'),
-                            const SizedBox(height: 8),
-                            Text(
-                              '${food.dateTime.year}-${food.dateTime.month.toString().padLeft(2, '0')}-${food.dateTime.day.toString().padLeft(2, '0')} ${food.dateTime.hour.toString().padLeft(2, '0')}:${food.dateTime.minute.toString().padLeft(2, '0')}',
-                              style: const TextStyle(color: Colors.grey),
-                            ),
-                          ],
-                        ),
-                        trailing: isMultiSelectMode
-                            ? (selectedItems.contains(food.id)
-                                ? Icon(Icons.check, color: Colors.green)
-                                : null)
-                            : null,
                       ),
-                    ),
-                  ),
-                );
+                    );
+                  }).toList();
+                } else {
+                  return [
+                    ExpansionTile(
+                      initiallyExpanded: true,
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            groupKey,
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                          Row(
+                            children: [
+                              const Icon(Icons.local_fire_department, color: Colors.grey),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${groupFoods.fold(0, (sum, food) => sum + food.calories)}',
+                                style: const TextStyle(fontSize: 16, color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      children: groupFoods.map((food) {
+                        return GestureDetector(
+                          onLongPress: () {
+                            setState(() {
+                              isMultiSelectMode = true;
+                              selectedItems.add(food.id!);
+                            });
+                          },
+                          onTap: () {
+                            if (isMultiSelectMode) {
+                              _toggleSelection(food.id!);
+                            } else {
+                              _showFoodDetails(food);
+                            }
+                          },
+                          child: Container(
+                            color: Theme.of(context).colorScheme.surface,
+                            child: Card(
+                              margin: const EdgeInsets.symmetric(vertical: 8.0),
+                              child: ListTile(
+                                leading: CircleAvatar(
+                                  child: Text(food.name[0]),
+                                ),
+                                title: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                                    textBaseline: TextBaseline.alphabetic,
+                                    children: [
+                                      Text(
+                                        food.nameZh,
+                                        style: TextStyle(fontSize: 18),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(food.name, style: TextStyle(color: Colors.grey)),
+                                    ],
+                                  ),
+                                ),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(height: 8),
+                                    Text('${food.calories} 卡路里'),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      '${food.dateTime.year}-${food.dateTime.month.toString().padLeft(2, '0')}-${food.dateTime.day.toString().padLeft(2, '0')} ${food.dateTime.hour.toString().padLeft(2, '0')}:${food.dateTime.minute.toString().padLeft(2, '0')}',
+                                      style: const TextStyle(color: Colors.grey),
+                                    ),
+                                  ],
+                                ),
+                                trailing: isMultiSelectMode
+                                    ? (selectedItems.contains(food.id)
+                                        ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary)
+                                        : null)
+                                    : null,
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    )
+                  ];
+                }
               }).toList(),
             );
           }).toList(),
@@ -278,9 +402,17 @@ class _FoodPageState extends State<FoodPage> {
                     icon: const Icon(Icons.delete),
                     onPressed: _deleteSelectedItems,
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.group),
-                    onPressed: _showGroupDialog,
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.group),
+                        onPressed: _showGroupDialog,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: _cancelGroupForSelectedItems, // 新增取消群組的功能
+                      ),
+                    ],
                   ),
                 ],
               ),
