@@ -56,6 +56,112 @@ class _FoodPageState extends State<FoodPage> {
     });
   }
 
+  Future<void> _showGroupDialog() async {
+    final TextEditingController groupController = TextEditingController();
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('輸入群組名稱'),
+          content: TextField(
+            controller: groupController,
+            decoration: const InputDecoration(labelText: '群組名稱'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('取消'),
+            ),
+            TextButton(
+              onPressed: () async {
+                final groupName = groupController.text;
+                if (groupName.isNotEmpty) {
+                  await _updateGroupForSelectedItems(groupName);
+                  Navigator.of(context).pop();
+                }
+              },
+              child: const Text('確定'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _updateGroupForSelectedItems(String groupName) async {
+    final calorieProvider = Provider.of<CalorieProvider>(context, listen: false);
+    for (var id in selectedItems) {
+      final food = calorieProvider.foods.firstWhere((food) => food.id == id);
+      final updatedFood = Food(
+        id: food.id,
+        name: food.name,
+        nameZh: food.nameZh,
+        calories: food.calories,
+        dateTime: food.dateTime,
+        fat: food.fat,
+        carbs: food.carbs,
+        protein: food.protein,
+        group: groupName,
+      );
+      await calorieProvider.updateFood(updatedFood);
+    }
+    setState(() {
+      selectedItems.clear();
+      isMultiSelectMode = false;
+    });
+  }
+
+  void _showFoodDetails(Food food) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () async {
+                      Navigator.of(context).pop();
+                      await Provider.of<CalorieProvider>(context, listen: false).deleteFood(food.id!);
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.edit),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      _showEditFoodDialog(food);
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('名稱: ${food.name}'),
+              Text('熱量: ${food.calories} 卡路里'),
+              Text('脂肪: ${food.fat ?? 0} g'),
+              Text('碳水化合物: ${food.carbs ?? 0} g'),
+              Text('蛋白質: ${food.protein ?? 0} g'),
+              Text(
+                '日期: ${food.dateTime.year}-${food.dateTime.month.toString().padLeft(2, '0')}-${food.dateTime.day.toString().padLeft(2, '0')} ${food.dateTime.hour.toString().padLeft(2, '0')}:${food.dateTime.minute.toString().padLeft(2, '0')}',
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final foods = Provider.of<CalorieProvider>(context).foods;
@@ -110,6 +216,8 @@ class _FoodPageState extends State<FoodPage> {
                   onTap: () {
                     if (isMultiSelectMode) {
                       _toggleSelection(food.id!);
+                    } else {
+                      _showFoodDetails(food);
                     }
                   },
                   child: Container(
@@ -151,10 +259,7 @@ class _FoodPageState extends State<FoodPage> {
                             ? (selectedItems.contains(food.id)
                                 ? Icon(Icons.check, color: Colors.green)
                                 : null)
-                            : IconButton(
-                                icon: const Icon(Icons.edit),
-                                onPressed: () => _showEditFoodDialog(food),
-                              ),
+                            : null,
                       ),
                     ),
                   ),
@@ -166,9 +271,18 @@ class _FoodPageState extends State<FoodPage> {
       ),
       bottomNavigationBar: isMultiSelectMode
           ? BottomAppBar(
-              child: IconButton(
-                icon: const Icon(Icons.delete),
-                onPressed: _deleteSelectedItems,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: _deleteSelectedItems,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.group),
+                    onPressed: _showGroupDialog,
+                  ),
+                ],
               ),
             )
           : null,

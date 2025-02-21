@@ -41,7 +41,7 @@ class FoodDatabase {
         carbs REAL,
         protein REAL,
         nameZh TEXT,
-        group TEXT
+        food_group TEXT
       )
     ''');
   }
@@ -66,8 +66,10 @@ class FoodDatabase {
     if (!hasNameZh) {
       await db.execute('ALTER TABLE foods ADD COLUMN nameZh TEXT;');
     }
-    if (!hasGroup) {
-      await db.execute('ALTER TABLE foods ADD COLUMN group TEXT;');
+    if (hasGroup) {
+      await db.execute('ALTER TABLE foods RENAME COLUMN group TO food_group;');
+    } else {
+      await db.execute('ALTER TABLE foods ADD COLUMN food_group TEXT;');
     }
   }
 

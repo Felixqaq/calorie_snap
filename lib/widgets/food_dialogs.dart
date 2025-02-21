@@ -17,10 +17,6 @@ class FoodDialogs {
       context,
       '新增食物',
       nameController,
-      caloriesController,
-      fatController,
-      carbsController,
-      proteinController,
       selectedDate,
       () async {
         await _addFood(
@@ -32,42 +28,40 @@ class FoodDialogs {
             proteinController,
             selectedDate.value);
       },
+      caloriesController: caloriesController,
+      fatController: fatController,
+      carbsController: carbsController,
+      proteinController: proteinController,
     );
   }
 
   static Future<void> showEditFoodDialog(
       BuildContext context, Food food) async {
     final nameController = TextEditingController(text: food.name);
-    final caloriesController =
-        TextEditingController(text: food.calories.toString());
-    final fatController =
-        TextEditingController(text: food.fat?.toString() ?? '');
-    final carbsController =
-        TextEditingController(text: food.carbs?.toString() ?? '');
-    final proteinController =
-        TextEditingController(text: food.protein?.toString() ?? '');
-    final selectedDate = ValueNotifier<DateTime>(food.dateTime);
+    final portionController = TextEditingController(text: '1');
 
     await _showFoodDialog(
       context,
       '編輯食物',
       nameController,
-      caloriesController,
-      fatController,
-      carbsController,
-      proteinController,
-      selectedDate,
+      ValueNotifier<DateTime>(food.dateTime),
       () async {
+        final portion = double.tryParse(portionController.text) ?? 1;
+        final updatedCalories = (food.calories * portion).toInt();
+        final updatedFat = (food.fat ?? 0) * portion;
+        final updatedCarbs = (food.carbs ?? 0) * portion;
+        final updatedProtein = (food.protein ?? 0) * portion;
         await _updateFood(
             context,
             food.id!,
             nameController,
-            caloriesController,
-            fatController,
-            carbsController,
-            proteinController,
-            selectedDate.value);
+            updatedCalories,
+            updatedFat,
+            updatedCarbs,
+            updatedProtein,
+            food.dateTime);
       },
+      portionController: portionController,
     );
   }
 
@@ -75,13 +69,14 @@ class FoodDialogs {
     BuildContext context,
     String title,
     TextEditingController nameController,
-    TextEditingController caloriesController,
-    TextEditingController fatController,
-    TextEditingController carbsController,
-    TextEditingController proteinController,
     ValueNotifier<DateTime> selectedDate,
-    Future<void> Function() onConfirm,
-  ) async {
+    Future<void> Function() onConfirm, {
+    TextEditingController? caloriesController,
+    TextEditingController? fatController,
+    TextEditingController? carbsController,
+    TextEditingController? proteinController,
+    TextEditingController? portionController,
+  }) async {
     await showDialog(
       context: context,
       builder: (context) {
@@ -94,14 +89,21 @@ class FoodDialogs {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     _buildTextField(nameController, '食物名稱'),
-                    _buildTextField(caloriesController, '熱量',
-                        keyboardType: TextInputType.number),
-                    _buildTextField(fatController, '脂肪',
-                        keyboardType: TextInputType.number),
-                    _buildTextField(carbsController, '碳水化合物',
-                        keyboardType: TextInputType.number),
-                    _buildTextField(proteinController, '蛋白質',
-                        keyboardType: TextInputType.number),
+                    if (caloriesController != null)
+                      _buildTextField(caloriesController, '熱量',
+                          keyboardType: TextInputType.number),
+                    if (fatController != null)
+                      _buildTextField(fatController, '脂肪',
+                          keyboardType: TextInputType.number),
+                    if (carbsController != null)
+                      _buildTextField(carbsController, '碳水化合物',
+                          keyboardType: TextInputType.number),
+                    if (proteinController != null)
+                      _buildTextField(proteinController, '蛋白質',
+                          keyboardType: TextInputType.number),
+                    if (portionController != null)
+                      _buildTextField(portionController, '份數',
+                          keyboardType: TextInputType.number),
                     _buildDateTimePicker(context, setState, selectedDate),
                     ValueListenableBuilder<DateTime>(
                       valueListenable: selectedDate,
@@ -113,8 +115,14 @@ class FoodDialogs {
                 ),
               ),
               actions: [
-                _buildDialogButton('取消', () => Navigator.of(context).pop()),
-                _buildDialogButton('確認', onConfirm),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('取消'),
+                ),
+                TextButton(
+                  onPressed: onConfirm,
+                  child: const Text('確定'),
+                ),
               ],
             );
           },
@@ -124,8 +132,10 @@ class FoodDialogs {
   }
 
   static TextField _buildTextField(
-      TextEditingController controller, String labelText,
-      {TextInputType keyboardType = TextInputType.text}) {
+    TextEditingController controller,
+    String labelText, {
+    TextInputType keyboardType = TextInputType.text,
+  }) {
     return TextField(
       controller: controller,
       decoration: InputDecoration(labelText: labelText),
@@ -167,24 +177,19 @@ class FoodDialogs {
 
   static Text _buildSelectedDateText(DateTime selectedDate) {
     return Text(
-        '選擇的日期: ${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')} ${selectedDate.hour.toString().padLeft(2, '0')}:${selectedDate.minute.toString().padLeft(2, '0')}');
-  }
-
-  static TextButton _buildDialogButton(String text, VoidCallback onPressed) {
-    return TextButton(
-      onPressed: onPressed,
-      child: Text(text),
+      '選擇的日期: ${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')} ${selectedDate.hour.toString().padLeft(2, '0')}:${selectedDate.minute.toString().padLeft(2, '0')}',
     );
   }
 
   static Future<void> _addFood(
-      BuildContext context,
-      TextEditingController nameController,
-      TextEditingController caloriesController,
-      TextEditingController fatController,
-      TextEditingController carbsController,
-      TextEditingController proteinController,
-      DateTime selectedDate) async {
+    BuildContext context,
+    TextEditingController nameController,
+    TextEditingController caloriesController,
+    TextEditingController fatController,
+    TextEditingController carbsController,
+    TextEditingController proteinController,
+    DateTime selectedDate,
+  ) async {
     final name = nameController.text;
     final translatedNameEn = await FoodService().translateText(name, dest: 'en');
     final translatedNameZh = await FoodService().translateText(name, dest: 'zh-tw');
@@ -213,34 +218,32 @@ class FoodDialogs {
     BuildContext context,
     int id,
     TextEditingController nameController,
-    TextEditingController caloriesController,
-    TextEditingController fatController,
-    TextEditingController carbsController,
-    TextEditingController proteinController,
-    DateTime selectedDate) async {
-      final name = nameController.text;
-      final translatedNameEn = await FoodService().translateText(name, dest: 'en');
-      final translatedNameZh = await FoodService().translateText(name, dest: 'zh-tw');
-      final nameZh = _isChinese(name) ? name : translatedNameZh;
-      final nameEn = _isChinese(name) ? translatedNameEn : name;
-      final calories = int.tryParse(caloriesController.text) ?? 0;
-      final fat = double.tryParse(fatController.text);
-      final carbs = double.tryParse(carbsController.text);
-      final protein = double.tryParse(proteinController.text);
-      if (name.isNotEmpty && calories > 0) {
-        final food = Food(
-          id: id,
-          name: nameEn,
-          nameZh: nameZh,
-          calories: calories,
-          dateTime: selectedDate,
-          fat: fat,
-          carbs: carbs,
-          protein: protein,
-          );
-        await Provider.of<CalorieProvider>(context, listen: false).updateFood(food);
-        Navigator.of(context).pop();
-      }
+    int updatedCalories,
+    double updatedFat,
+    double updatedCarbs,
+    double updatedProtein,
+    DateTime selectedDate,
+  ) async {
+    final name = nameController.text;
+    final translatedNameEn = await FoodService().translateText(name, dest: 'en');
+    final translatedNameZh = await FoodService().translateText(name, dest: 'zh-tw');
+    final nameZh = _isChinese(name) ? name : translatedNameZh;
+    final nameEn = _isChinese(name) ? translatedNameEn : name;
+
+    if (name.isNotEmpty && updatedCalories > 0) {
+      final food = Food(
+        id: id,
+        name: nameEn,
+        nameZh: nameZh,
+        calories: updatedCalories,
+        dateTime: selectedDate,
+        fat: updatedFat,
+        carbs: updatedCarbs,
+        protein: updatedProtein,
+      );
+      await Provider.of<CalorieProvider>(context, listen: false).updateFood(food);
+      Navigator.of(context).pop();
+    }
   }
 
   static bool _isChinese(String text) {
