@@ -7,6 +7,7 @@ class Food {
   final double? fat;
   final double? carbs;
   final double? protein;
+  final String? group; // 新增的 group 欄位
 
   Food({
     this.id,
@@ -17,6 +18,7 @@ class Food {
     this.fat,
     this.carbs,
     this.protein,
+    this.group, // 初始化 group 欄位
   });
 
   Map<String, dynamic> toMap() {
@@ -29,6 +31,7 @@ class Food {
       'fat': fat,
       'carbs': carbs,
       'protein': protein,
+      'group': group, // 新增 group 欄位到 map
     };
   }
 }

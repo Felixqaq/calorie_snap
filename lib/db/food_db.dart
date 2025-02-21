@@ -1,6 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'models/food.dart';
+import '../models/food.dart';
 
 class FoodDatabase {
   static final FoodDatabase instance = FoodDatabase._init();
@@ -21,7 +21,7 @@ class FoodDatabase {
     try {
       return await openDatabase(
         path,
-        version: 6,
+        version: 8,
         onCreate: _createDB,
         onUpgrade: _upgradeDB,
       );
@@ -40,7 +40,8 @@ class FoodDatabase {
         fat REAL,
         carbs REAL,
         protein REAL,
-        nameZh TEXT
+        nameZh TEXT,
+        group TEXT
       )
     ''');
   }
@@ -51,6 +52,7 @@ class FoodDatabase {
     final hasCarbs = tableInfo.any((col) => col['name'] == 'carbs');
     final hasProtein = tableInfo.any((col) => col['name'] == 'protein');
     final hasNameZh = tableInfo.any((col) => col['name'] == 'nameZh');
+    final hasGroup = tableInfo.any((col) => col['name'] == 'group');
 
     if (!hasFat) {
       await db.execute('ALTER TABLE foods ADD COLUMN fat REAL;');
@@ -63,6 +65,9 @@ class FoodDatabase {
     }
     if (!hasNameZh) {
       await db.execute('ALTER TABLE foods ADD COLUMN nameZh TEXT;');
+    }
+    if (!hasGroup) {
+      await db.execute('ALTER TABLE foods ADD COLUMN group TEXT;');
     }
   }
 

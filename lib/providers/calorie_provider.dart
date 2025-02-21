@@ -1,5 +1,5 @@
 import 'package:calorie_snap/models/food.dart';
-import 'package:calorie_snap/food_db.dart';
+import 'package:calorie_snap/db/food_db.dart';
 import 'package:flutter/material.dart';
 
 class CalorieProvider extends ChangeNotifier {
