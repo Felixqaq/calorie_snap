@@ -89,26 +89,28 @@ class FoodDialogs {
           builder: (context, setState) {
             return AlertDialog(
               title: Text(title),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildTextField(nameController, '食物名稱'),
-                  _buildTextField(caloriesController, '熱量',
-                      keyboardType: TextInputType.number),
-                  _buildTextField(fatController, '脂肪',
-                      keyboardType: TextInputType.number),
-                  _buildTextField(carbsController, '碳水化合物',
-                      keyboardType: TextInputType.number),
-                  _buildTextField(proteinController, '蛋白質',
-                      keyboardType: TextInputType.number),
-                  _buildDateTimePicker(context, setState, selectedDate),
-                  ValueListenableBuilder<DateTime>(
-                    valueListenable: selectedDate,
-                    builder: (context, value, child) {
-                      return _buildSelectedDateText(value);
-                    },
-                  ),
-                ],
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildTextField(nameController, '食物名稱'),
+                    _buildTextField(caloriesController, '熱量',
+                        keyboardType: TextInputType.number),
+                    _buildTextField(fatController, '脂肪',
+                        keyboardType: TextInputType.number),
+                    _buildTextField(carbsController, '碳水化合物',
+                        keyboardType: TextInputType.number),
+                    _buildTextField(proteinController, '蛋白質',
+                        keyboardType: TextInputType.number),
+                    _buildDateTimePicker(context, setState, selectedDate),
+                    ValueListenableBuilder<DateTime>(
+                      valueListenable: selectedDate,
+                      builder: (context, value, child) {
+                        return _buildSelectedDateText(value);
+                      },
+                    ),
+                  ],
+                ),
               ),
               actions: [
                 _buildDialogButton('取消', () => Navigator.of(context).pop()),

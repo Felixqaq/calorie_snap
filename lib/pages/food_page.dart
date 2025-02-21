@@ -52,6 +52,7 @@ class _FoodPageState extends State<FoodPage> {
         child: ListView(
           children: groupedFoods.keys.map((date) {
             return ExpansionTile(
+              initiallyExpanded: true,
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -78,17 +79,20 @@ class _FoodPageState extends State<FoodPage> {
                     leading: CircleAvatar(
                       child: Text(food.name[0]),
                     ),
-                    title: Row(
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: [
-                        Text(
-                          food.nameZh,
-                          style: TextStyle(fontSize: 18),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(food.name, style: TextStyle(color: Colors.grey)),
-                      ],
+                    title: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          Text(
+                            food.nameZh,
+                            style: TextStyle(fontSize: 18),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(food.name, style: TextStyle(color: Colors.grey)),
+                        ],
+                      ),
                     ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

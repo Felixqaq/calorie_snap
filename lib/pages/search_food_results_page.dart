@@ -4,24 +4,38 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/calorie_provider.dart';
 
-class SearchFoodResultsPage extends StatelessWidget {
+class SearchFoodResultsPage extends StatefulWidget {
   final List<FoodInfo> results;
 
-  const SearchFoodResultsPage({Key? key, required this.results})
-      : super(key: key);
+  const SearchFoodResultsPage({Key? key, required this.results}) : super(key: key);
 
-  void _addFood(BuildContext context, FoodInfo item) {
+  @override
+  _SearchFoodResultsPageState createState() => _SearchFoodResultsPageState();
+}
+
+class _SearchFoodResultsPageState extends State<SearchFoodResultsPage> {
+  void _addFood(BuildContext context, FoodInfo item, int index) {
     final food = FoodService.parseFood(item);
     Provider.of<CalorieProvider>(context, listen: false).addFood(food);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('${item.foodNameZh} 已新增')),
     );
+    setState(() {
+      widget.results.removeAt(index);
+      if (widget.results.isEmpty) {
+        Navigator.pop(context);
+      }
+    });
   }
 
   void _addAllFoods(BuildContext context) {
-    final calorieProvider =
-        Provider.of<CalorieProvider>(context, listen: false);
-    for (var item in results) {
+    if (widget.results.isEmpty) {
+      Navigator.pop(context);
+      return;
+    }
+
+    final calorieProvider = Provider.of<CalorieProvider>(context, listen: false);
+    for (var item in widget.results) {
       final food = FoodService.parseFood(item);
       calorieProvider.addFood(food);
     }
@@ -89,9 +103,9 @@ class SearchFoodResultsPage extends StatelessWidget {
             const SizedBox(height: 20),
             Expanded(
               child: ListView.builder(
-                itemCount: results.length,
+                itemCount: widget.results.length,
                 itemBuilder: (context, index) {
-                  final item = results[index];
+                  final item = widget.results[index];
                   return Card(
                     margin: const EdgeInsets.symmetric(vertical: 5),
                     child: ListTile(
@@ -141,7 +155,7 @@ class SearchFoodResultsPage extends StatelessWidget {
                           ),
                         ],
                       ),
-                      onTap: () => _addFood(context, item),
+                      onTap: () => _addFood(context, item, index),
                     ),
                   );
                 },
