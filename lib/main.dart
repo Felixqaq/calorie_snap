@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'pages/food_page.dart';
-import 'pages/home_page.dart';
 import 'pages/show_today_intake_page.dart';
+import 'pages/login_page.dart';
 import 'providers/calorie_provider.dart';
 
 void main() async {
@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
         '/show_food': (context) => const FoodPage(title: 'Food Record'),
         '/show_today_intake': (context) => const ShowTodayIntakePage(),
       },
-      home: const HomePage(),
+      home: const LoginPage(),
     );
   }
 }

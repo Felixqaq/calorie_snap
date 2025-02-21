@@ -95,7 +95,9 @@ class _ShowTodayIntakePageState extends State<ShowTodayIntakePage> {
             } else if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             }
-            return FoodListWidget(foods: snapshot.data ?? []);
+            final foods = snapshot.data ?? [];
+            
+            return FoodListWidget(foods: foods);
           },
         );
       },
@@ -133,6 +135,7 @@ class _ShowTodayIntakePageState extends State<ShowTodayIntakePage> {
                 ],
               ),
             ),
+            // 刪除 _buildGroupSummary 的呼叫，讓 FoodListWidget 同時顯示群組摘要與清單
             Expanded(
               flex: 1,
               child: _buildFoodList(),

@@ -116,6 +116,7 @@ class FoodDatabase {
         carbs: maps[i]['carbs'],
         protein: maps[i]['protein'],
         nameZh: maps[i]['nameZh'] ?? '',
+        group: maps[i]['food_group'] ?? '',
       );
     });
   }
