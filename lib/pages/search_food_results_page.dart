@@ -3,6 +3,7 @@ import 'package:calorie_snap/services/food_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/calorie_provider.dart';
+import '../utils/group_manager.dart';
 
 class SearchFoodResultsPage extends StatefulWidget {
   final List<FoodInfo> results;
@@ -28,19 +29,26 @@ class _SearchFoodResultsPageState extends State<SearchFoodResultsPage> {
     });
   }
 
-  void _addAllFoods(BuildContext context) {
+  void _addAllFoods(BuildContext context) async {
     if (widget.results.isEmpty) {
       Navigator.pop(context);
+      return;
+    }
+
+    final groupManager = GroupManager(context, [], (selectedItems) {});
+    String? groupName = await groupManager.showGroupDialog();
+    if (groupName == null || groupName.isEmpty) {
       return;
     }
 
     final calorieProvider = Provider.of<CalorieProvider>(context, listen: false);
     for (var item in widget.results) {
       final food = FoodService.parseFood(item);
+      food.group = groupName; 
       calorieProvider.addFood(food);
     }
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('所有食物已新增')),
+      SnackBar(content: Text('$groupName 已新增')),
     );
     Navigator.pop(context);
   }
