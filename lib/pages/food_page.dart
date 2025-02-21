@@ -124,7 +124,7 @@ class _FoodPageState extends State<FoodPage> {
         fat: food.fat,
         carbs: food.carbs,
         protein: food.protein,
-        group: '', // 清除群組設定
+        group: '', 
       );
       await calorieProvider.updateFood(updatedFood);
     }
@@ -151,8 +151,8 @@ class _FoodPageState extends State<FoodPage> {
                   IconButton(
                     icon: const Icon(Icons.delete),
                     onPressed: () async {
-                      Navigator.of(context).pop();
                       await Provider.of<CalorieProvider>(context, listen: false).deleteFood(food.id!);
+                      Navigator.of(context).pop();
                     },
                   ),
                   IconButton(
@@ -206,6 +206,7 @@ class _FoodPageState extends State<FoodPage> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('food_page.dart: build method called');
     final foods = Provider.of<CalorieProvider>(context).foods;
     final groupedFoods = groupFoodsByDateAndGroup(foods);
     return Scaffold(
