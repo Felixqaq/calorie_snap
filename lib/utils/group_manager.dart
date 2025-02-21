@@ -10,9 +10,15 @@ class GroupManager {
 
   GroupManager(this.context, this.selectedItems, this.clearSelection);
 
+<<<<<<< HEAD
   Future<String?> showGroupDialog() async {
     final TextEditingController groupController = TextEditingController();
     return showDialog<String>(
+=======
+  Future<void> showGroupDialog() async {
+    final TextEditingController groupController = TextEditingController();
+    await showDialog(
+>>>>>>> f24146fa6aca29d5f4a176cf7003d65bfe191f2d
       context: context,
       builder: (context) {
         return AlertDialog(
@@ -27,10 +33,18 @@ class GroupManager {
               child: const Text('取消'),
             ),
             TextButton(
+<<<<<<< HEAD
               onPressed: () {
                 final groupName = groupController.text;
                 if (groupName.isNotEmpty) {
                   Navigator.of(context).pop(groupName);
+=======
+              onPressed: () async {
+                final groupName = groupController.text;
+                if (groupName.isNotEmpty) {
+                  await _updateGroupForSelectedItems(groupName);
+                  Navigator.of(context).pop();
+>>>>>>> f24146fa6aca29d5f4a176cf7003d65bfe191f2d
                 }
               },
               child: const Text('確定'),
@@ -45,6 +59,13 @@ class GroupManager {
     await _updateGroupForItems('');
   }
 
+<<<<<<< HEAD
+=======
+  Future<void> _updateGroupForSelectedItems(String groupName) async {
+    await _updateGroupForItems(groupName);
+  }
+
+>>>>>>> f24146fa6aca29d5f4a176cf7003d65bfe191f2d
   Future<void> _updateGroupForItems(String groupName) async {
     final calorieProvider = Provider.of<CalorieProvider>(context, listen: false);
     for (var id in selectedItems) {
