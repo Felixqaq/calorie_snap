@@ -226,8 +226,8 @@ class _FoodPageState extends State<FoodPage> {
           Row(
             children: [
               IconButton(
-                icon: const Icon(Icons.group),
-                onPressed: groupManager.showGroupDialog,
+                icon: const Icon(Icons.library_add),
+                onPressed: groupManager.updateGroupForSelectedItemsWithDialog,
               ),
               IconButton(
                 icon: const Icon(Icons.clear),
