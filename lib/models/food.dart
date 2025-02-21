@@ -34,4 +34,28 @@ class Food {
       'food_group': group, 
     };
   }
+
+  Food copyWith({
+    int? id,
+    String? name,
+    String? nameZh,
+    int? calories,
+    DateTime? dateTime,
+    double? fat,
+    double? carbs,
+    double? protein,
+    String? group,
+  }) {
+    return Food(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      nameZh: nameZh ?? this.nameZh,
+      calories: calories ?? this.calories,
+      dateTime: dateTime ?? this.dateTime,
+      fat: fat ?? this.fat,
+      carbs: carbs ?? this.carbs,
+      protein: protein ?? this.protein,
+      group: group ?? this.group,
+    );
+  }
 }
