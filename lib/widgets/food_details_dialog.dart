@@ -31,14 +31,16 @@ class FoodDetailsDialog {
               icon: const Icon(Icons.delete),
               onPressed: () async {
                 await Provider.of<CalorieProvider>(context, listen: false).deleteFood(food.id!);
+                if (!context.mounted) return;
                 Navigator.of(context).pop();
               },
             ),
             IconButton(
               icon: const Icon(Icons.edit),
-              onPressed: () {
+              onPressed: () async {
+                await FoodDialogs.showEditFoodDialog(context, food);
+                if (!context.mounted) return;
                 Navigator.of(context).pop();
-                FoodDialogs.showEditFoodDialog(context, food);
               },
             ),
           ],
@@ -58,9 +60,10 @@ class FoodDetailsDialog {
         Text('碳水化合物: ${food.carbs ?? 0} g'),
         Text('蛋白質: ${food.protein ?? 0} g'),
         Text(
-          '日期: ${food.dateTime.year}-${food.dateTime.month.toString().padLeft(2, '0')}-${food.dateTime.day.toString().padLeft(2, '0')} ${food.dateTime.hour.toString().padLeft(2, '0')}:${food.dateTime.minute.toString().padLeft(2, '0')}',
+          '日期: ${food.dateTime.year}-${food.dateTime.month.toString().padLeft(2, '0')}-${food.dateTime.day.toString().padLeft(2, '0')} '
+          '${food.dateTime.hour.toString().padLeft(2, '0')}:${food.dateTime.minute.toString().padLeft(2, '0')}',
         ),
-        Text('群組: ${food.group ?? "無"}'),
+        Text('群組: ${food.group?.isEmpty ?? true ? "無" : food.group}'),
       ],
     );
   }

@@ -12,7 +12,8 @@ class FoodDialogs {
     final carbsController = TextEditingController();
     final proteinController = TextEditingController();
     final selectedDate = ValueNotifier<DateTime>(DateTime.now());
-
+    final calorieProvider = Provider.of<CalorieProvider>(context, listen: false);
+    
     await _showFoodDialog(
       context,
       '新增食物',
@@ -26,7 +27,8 @@ class FoodDialogs {
             fatController,
             carbsController,
             proteinController,
-            selectedDate.value);
+            selectedDate.value,
+            calorieProvider);
       },
       caloriesController: caloriesController,
       fatController: fatController,
@@ -35,35 +37,36 @@ class FoodDialogs {
     );
   }
 
-  static Future<void> showEditFoodDialog(
-      BuildContext context, Food food) async {
-    final nameController = TextEditingController(text: food.name);
-    final portionController = TextEditingController(text: '1');
-
-    await _showFoodDialog(
-      context,
-      '編輯食物',
-      nameController,
-      ValueNotifier<DateTime>(food.dateTime),
-      () async {
-        final portion = double.tryParse(portionController.text) ?? 1;
-        final updatedCalories = (food.calories * portion).toInt();
-        final updatedFat = (food.fat ?? 0) * portion;
-        final updatedCarbs = (food.carbs ?? 0) * portion;
-        final updatedProtein = (food.protein ?? 0) * portion;
-        await _updateFood(
-            context,
-            food.id!,
-            nameController,
-            updatedCalories,
-            updatedFat,
-            updatedCarbs,
-            updatedProtein,
-            food.dateTime);
-      },
-      portionController: portionController,
-    );
-  }
+  static Future<void> showEditFoodDialog(BuildContext context, Food food) async {
+      final nameController = TextEditingController(text: food.name);
+      final portionController = TextEditingController(text: '1');
+      final calorieProvider = Provider.of<CalorieProvider>(context, listen: false);
+      await _showFoodDialog(
+        context,
+        '編輯食物',
+        nameController,
+        ValueNotifier<DateTime>(food.dateTime),
+        () async {
+          final portion = double.tryParse(portionController.text) ?? 1;
+          final updatedCalories = (food.calories * portion).toInt();
+          final updatedFat = (food.fat ?? 0) * portion;
+          final updatedCarbs = (food.carbs ?? 0) * portion;
+          final updatedProtein = (food.protein ?? 0) * portion;
+          await _updateFood(
+              food.id!,
+              nameController,
+              updatedCalories,
+              updatedFat,
+              updatedCarbs,
+              updatedProtein,
+              food.dateTime,
+              calorieProvider);
+          if (!context.mounted) return;
+          Navigator.of(context).pop();
+        },
+        portionController: portionController,
+      );
+    }
 
   static Future<void> _showFoodDialog(
     BuildContext context,
@@ -189,6 +192,7 @@ class FoodDialogs {
     TextEditingController carbsController,
     TextEditingController proteinController,
     DateTime selectedDate,
+    CalorieProvider calorieProvider,
   ) async {
     final name = nameController.text;
     final translatedNameEn = await FoodService().translateText(name, dest: 'en');
@@ -209,13 +213,11 @@ class FoodDialogs {
         carbs: carbs,
         protein: protein,
       );
-      await Provider.of<CalorieProvider>(context, listen: false).addFood(food);
-      Navigator.of(context).pop();
+      await calorieProvider.addFood(food);
     }
   }
 
   static Future<void> _updateFood(
-    BuildContext context,
     int id,
     TextEditingController nameController,
     int updatedCalories,
@@ -223,6 +225,7 @@ class FoodDialogs {
     double updatedCarbs,
     double updatedProtein,
     DateTime selectedDate,
+    CalorieProvider calorieProvider,
   ) async {
     final name = nameController.text;
     final translatedNameEn = await FoodService().translateText(name, dest: 'en');
@@ -241,8 +244,7 @@ class FoodDialogs {
         carbs: updatedCarbs,
         protein: updatedProtein,
       );
-      await Provider.of<CalorieProvider>(context, listen: false).updateFood(food);
-      Navigator.of(context).pop();
+      await calorieProvider.updateFood(food);
     }
   }
 

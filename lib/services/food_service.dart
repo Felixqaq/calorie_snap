@@ -8,8 +8,16 @@ import 'package:calorie_snap/models/composite_food_info_item.dart';
 
 class FoodService {
   static String _initializeBaseUrl() {
-    return 'http://192.168.1.111:8000';
-    // return 'http://10.0.2.2:8000';
+    // return 'http://192.168.1.111:8000';
+    // return 'http://192.168.1.111:8080';
+    return "http://35.234.57.229:8080";
+  }
+
+  Map<String, String> getHeaders() {
+    return {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
   }
 
   Future<FoodInfo> searchFood(String query) async {
@@ -26,7 +34,9 @@ class FoodService {
 
     final url = Uri.parse('$baseUrl/search_food/?query=$query');
 
-    final response = await http.get(url);
+    final response = await http.get(url, headers: getHeaders());
+    debugPrint('response: ${response.statusCode}');
+    debugPrint('response: $response');
     if (response.statusCode == 200) {
       final String responseString = utf8.decode(response.bodyBytes);
       final responseData = jsonDecode(responseString);
@@ -53,9 +63,12 @@ class FoodService {
 
     final url = Uri.parse('$baseUrl/search_food_by_image/');
     final request = http.MultipartRequest('POST', url);
+    request.headers.addAll(getHeaders());
     request.files.add(await http.MultipartFile.fromPath('image', imagePath));
 
     final response = await request.send();
+    debugPrint('response: ${response.statusCode}');
+    debugPrint('response: $response');
     final responseBody = await http.Response.fromStream(response);
     if (responseBody.statusCode == 200) {
       final String responseString = utf8.decode(responseBody.bodyBytes);
@@ -83,7 +96,7 @@ class FoodService {
     final url = Uri.parse('$baseUrl/translate/?text=$text&dest=$dest');
     final response = await http.post(
       url,
-      headers: {'Content-Type': 'application/json'},
+      headers: getHeaders(),
     );
 
     if (response.statusCode == 200) {
