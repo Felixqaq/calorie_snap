@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    Icons.local_fire_department,
+                    Icons.camera,
                     color: Colors.white,
                     size: 50,
                   ),

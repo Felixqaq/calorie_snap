@@ -84,7 +84,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const FlutterLogo(size: 72),
+                    Icon(Icons.camera, size: 72, color: Theme.of(context).primaryColor),
                     const SizedBox(height: 16),
                     Text(
                       'Calorie Snap',

@@ -123,9 +123,13 @@ class FoodDialogs {
                   child: const Text('取消'),
                 ),
                 TextButton(
-                  onPressed: onConfirm,
+                  onPressed: () async {
+                    await onConfirm();
+                    if (!context.mounted) return;
+                    Navigator.of(context).pop();
+                  },
                   child: const Text('確定'),
-                ),
+                )
               ],
             );
           },

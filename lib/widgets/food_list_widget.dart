@@ -9,7 +9,6 @@ class FoodListWidget extends StatelessWidget {
     required this.foods,
   }) : super(key: key);
 
-  // 新增：格式化時間
   String _formatTime(DateTime dateTime) {
     return dateTime.toString().substring(11, 16);
   }
@@ -99,7 +98,7 @@ class FoodListWidget extends StatelessWidget {
               ? const Center(
                   child: Text(
                     '今日還未記錄任何食物',
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                    style: TextStyle(fontSize: 20, color: Colors.grey),
                   ),
                 )
               : _buildMergedFoodList(context),

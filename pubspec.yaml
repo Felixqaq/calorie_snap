@@ -1,6 +1,6 @@
 name: calorie_snap
 description: "A new Flutter project."
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: 'none'
 version: 1.0.0+1
 
 environment:
@@ -20,6 +20,7 @@ dependencies:
   fl_chart: ^0.67.0 
   intl: ^0.19.0
   google_sign_in: ^5.4.0
+  flutter_launcher_icons: ^0.13.1
 
 dev_dependencies:
   flutter_test:
@@ -28,3 +29,12 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "icons/playstore.png"
+  android_icon_size: 1024
+  remove_alpha_ios: true
+  adaptive_icon:
+    background: "#c4d7b2"

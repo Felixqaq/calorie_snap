@@ -73,22 +73,29 @@ class _FoodPageState extends State<FoodPage> {
       appBar: buildAppBar(context, widget.title),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: ListView(
-          children: groupedFoods.keys.map((dateKey) {
-            final totalCaloriesForDate = groupedFoods[dateKey]!.values
-                .expand((groupFoods) => groupFoods)
-                .fold(0, (sum, food) => sum + food.calories);
-            return ExpansionTile(
-              initiallyExpanded: true,
-              title: _buildDateTitle(dateKey, totalCaloriesForDate),
-              children: groupedFoods[dateKey]!.entries.expand<Widget>((entry) {
-                final groupKey = entry.key;
-                final groupFoods = entry.value;
-                return _buildGroupTiles(groupKey, groupFoods);
-              }).toList(),
-            );
-          }).toList(),
-        ),
+        child: foods.isEmpty
+            ? Center(
+                child: Text(
+                  '目前沒有食物',
+                  style: TextStyle(fontSize: 20, color: Colors.grey),
+                ),
+              )
+            : ListView(
+                children: groupedFoods.keys.map((dateKey) {
+                  final totalCaloriesForDate = groupedFoods[dateKey]!.values
+                      .expand((groupFoods) => groupFoods)
+                      .fold(0, (sum, food) => sum + food.calories);
+                  return ExpansionTile(
+                    initiallyExpanded: true,
+                    title: _buildDateTitle(dateKey, totalCaloriesForDate),
+                    children: groupedFoods[dateKey]!.entries.expand<Widget>((entry) {
+                      final groupKey = entry.key;
+                      final groupFoods = entry.value;
+                      return _buildGroupTiles(groupKey, groupFoods);
+                    }).toList(),
+                  );
+                }).toList(),
+              ),
       ),
       bottomNavigationBar: isMultiSelectMode ? _buildBottomAppBar() : null,
       floatingActionButton: isMultiSelectMode ? null : _buildFloatingActionButton(),
