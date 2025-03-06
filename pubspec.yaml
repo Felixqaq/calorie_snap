@@ -33,7 +33,7 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "icons/playstore.png"
+  image_path: "assets/playstore.png"
   android_icon_size: 1024
   remove_alpha_ios: true
   adaptive_icon:

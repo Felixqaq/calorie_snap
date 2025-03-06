@@ -1,16 +1,56 @@
-# calorie_snap
+# CalorieSnap
 
-A new Flutter project.
+[中文](README_zh.md)
 
-## Getting Started
+A calorie tracking application developed with Flutter. Helps users record and manage their daily calorie intake by taking photos of food.
 
-This project is a starting point for a Flutter application.
+## Demo
+<video controls src="assets/video/demo.mp4" title="Title"></video>
 
-A few resources to get you started if this is your first Flutter project:
+## Features
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- 📸 Food identification through photos
+- 🔢 Automatic calorie calculation
+- 📊 Daily calorie intake statistics and charts
+- 🔍 Detailed food nutrition information
+- 📝 Custom food logging
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Technical Architecture
+
+- Developed with Flutter framework
+- Cross-platform support: Android, iOS, Web, Desktop
+- Uses Gemini model for food recognition
+
+## Installation and Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/calorie_snap.git
+
+# Navigate to project directory
+cd calorie_snap
+
+# Install dependencies
+flutter pub get
+
+# Run the application
+flutter run
+```
+
+## Development Guide
+
+Please refer to the [Flutter official documentation](https://docs.flutter.dev/) for more information on Flutter development.
+
+## Contribution Guidelines
+
+1. Fork this repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+[Powered by fatsecret](https://www.fatsecret.com)

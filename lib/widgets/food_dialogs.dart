@@ -41,11 +41,13 @@ class FoodDialogs {
       final nameController = TextEditingController(text: food.name);
       final portionController = TextEditingController(text: '1');
       final calorieProvider = Provider.of<CalorieProvider>(context, listen: false);
+      final selectedDate = ValueNotifier<DateTime>(food.dateTime);
+
       await _showFoodDialog(
         context,
         '編輯食物',
         nameController,
-        ValueNotifier<DateTime>(food.dateTime),
+        selectedDate,
         () async {
           final portion = double.tryParse(portionController.text) ?? 1;
           final updatedCalories = (food.calories * portion).toInt();
@@ -59,10 +61,8 @@ class FoodDialogs {
               updatedFat,
               updatedCarbs,
               updatedProtein,
-              food.dateTime,
+              selectedDate.value,
               calorieProvider);
-          if (!context.mounted) return;
-          Navigator.of(context).pop();
         },
         portionController: portionController,
       );
