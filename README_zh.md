@@ -3,7 +3,7 @@
 這是一個使用Flutter開發的卡路里追蹤應用程式。通過拍攝食物照片，幫助用戶記錄和管理他們的日常飲食卡路里攝入。
 
 ## Demo
-<video controls src="assets/video/demo.mp4" title="Title"></video>
+![alt text](assets/video/demo.gif)
 
 ## 功能特點
 

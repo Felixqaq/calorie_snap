@@ -5,7 +5,7 @@
 A calorie tracking application developed with Flutter. Helps users record and manage their daily calorie intake by taking photos of food.
 
 ## Demo
-<video controls src="assets/video/demo.mp4" title="Title"></video>
+![alt text](assets/video/demo.gif)
 
 ## Features
 
