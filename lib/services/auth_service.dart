@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
@@ -64,9 +65,8 @@ class AuthService {
       }
       
       // 獲取身份驗證詳細信息
-      final GoogleSignInAuthentication googleAuth = 
-          await googleUser.authentication;
-          
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      
       // 建立 Firebase 憑證
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
@@ -76,13 +76,22 @@ class AuthService {
       // 使用 Google 憑證登入 Firebase
       final userCredential = await _auth.signInWithCredential(credential);
       
+      // 判斷是否為新用戶
+      bool isNewUser = userCredential.additionalUserInfo?.isNewUser ?? false;
+      
       // 如果是新用戶，建立用戶資料
-      if (userCredential.additionalUserInfo?.isNewUser ?? false) {
+      if (isNewUser) {
         await _createUserDocument(userCredential.user!);
+        
+        // 您可以在這裡加入新用戶的其他處理邏輯
+        debugPrint('已成功建立新用戶：${userCredential.user!.displayName}');
+      } else {
+        debugPrint('已使用 Google 帳號登入：${userCredential.user!.displayName}');
       }
       
       return userCredential;
     } catch (e) {
+      debugPrint('Google 登入/註冊失敗: $e');
       rethrow;
     }
   }

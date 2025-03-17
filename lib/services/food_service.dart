@@ -8,8 +8,6 @@ import 'package:calorie_snap/models/composite_food_info_item.dart';
 
 class FoodService {
   static String _initializeBaseUrl() {
-    // return 'http://192.168.1.111:8000';
-    // return 'http://192.168.1.111:8080';
     return "http://35.234.57.229:8080";
   }
 

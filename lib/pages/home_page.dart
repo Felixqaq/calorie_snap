@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:calorie_snap/pages/login_page.dart';
 import 'food_page.dart';
 import 'show_today_intake_page.dart';
 import 'search_food_page.dart';
+import 'package:calorie_snap/services/auth_service.dart';  // 新增引入
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,7 +17,7 @@ class _HomePageState extends State<HomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _selectedIndex = 0;
   final _storage = const FlutterSecureStorage();
-  final _googleSignIn = GoogleSignIn();
+  final AuthService _authService = AuthService();
 
   // 處理登出功能
   Future<void> _handleLogout() async {
@@ -43,8 +43,8 @@ class _HomePageState extends State<HomePage> {
     if (!confirm) return;
 
     try {
-      // 登出 Google 帳號
-      await _googleSignIn.signOut();
+      // 登出 (使用 AuthService)
+      await _authService.signOut();
 
       // 清除本地保存的使用者資料
       await _storage.deleteAll();

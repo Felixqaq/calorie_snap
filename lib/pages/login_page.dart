@@ -1,8 +1,8 @@
 import 'package:calorie_snap/pages/register_page.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'home_page.dart';
+import 'package:calorie_snap/services/auth_service.dart';  // 新增引入
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -15,8 +15,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   bool _isLoading = false;
   late AnimationController _animController;
   late Animation<double> _opacityAnimation;
-  final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
   final _storage = const FlutterSecureStorage();
+  final AuthService _authService = AuthService();
 
   @override
   void initState() {
@@ -50,18 +50,23 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     try {
       setState(() => _isLoading = true);
       
-      final GoogleSignInAccount? account = await _googleSignIn.signIn();
-      if (account == null) {
+      final userCredential = await _authService.signInWithGoogle();
+      if (userCredential == null) {
         // 使用者取消登入
         setState(() => _isLoading = false);
         return;
       }
+      
+      final user = userCredential.user;
+      if (user == null) {
+        throw Exception('無法獲取使用者資訊');
+      }
 
       // 儲存使用者資料
-      await _storage.write(key: 'userId', value: account.id);
-      await _storage.write(key: 'userEmail', value: account.email);
-      await _storage.write(key: 'userName', value: account.displayName);
-      await _storage.write(key: 'userPhoto', value: account.photoUrl);
+      await _storage.write(key: 'userId', value: user.uid);
+      await _storage.write(key: 'userEmail', value: user.email);
+      await _storage.write(key: 'userName', value: user.displayName);
+      await _storage.write(key: 'userPhoto', value: user.photoURL);
 
       if (!mounted) return;
       Navigator.pushReplacement(
