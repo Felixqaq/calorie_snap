@@ -1,5 +1,8 @@
+import 'package:calorie_snap/pages/register_page.dart';
 import 'package:flutter/material.dart';
-import 'home_page.dart'; // 請確認此檔案存在
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'home_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -12,6 +15,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   bool _isLoading = false;
   late AnimationController _animController;
   late Animation<double> _opacityAnimation;
+  final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
+  final _storage = const FlutterSecureStorage();
 
   @override
   void initState() {
@@ -24,17 +29,52 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
       CurvedAnimation(parent: _animController, curve: Curves.easeInOut),
     );
     _animController.forward();
+    
+    // 檢查是否已登入
+    _checkLoginStatus();
+  }
+
+  // 檢查使用者是否已經登入
+  Future<void> _checkLoginStatus() async {
+    final userEmail = await _storage.read(key: 'userEmail');
+    if (userEmail != null) {
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomePage()),
+      );
+    }
   }
 
   Future<void> _handleGoogleSignIn() async {
-    setState(() => _isLoading = true);
-    // 模擬登入延遲
-    await Future.delayed(const Duration(seconds: 2));
-    if (!mounted) return;
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const HomePage()),
-    );
+    try {
+      setState(() => _isLoading = true);
+      
+      final GoogleSignInAccount? account = await _googleSignIn.signIn();
+      if (account == null) {
+        // 使用者取消登入
+        setState(() => _isLoading = false);
+        return;
+      }
+
+      // 儲存使用者資料
+      await _storage.write(key: 'userId', value: account.id);
+      await _storage.write(key: 'userEmail', value: account.email);
+      await _storage.write(key: 'userName', value: account.displayName);
+      await _storage.write(key: 'userPhoto', value: account.photoUrl);
+
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomePage()),
+      );
+    } catch (error) {
+      // 處理登入錯誤
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('登入失敗: ${error.toString()}')),
+      );
+      setState(() => _isLoading = false);
+    }
   }
 
   void _skipLogin() {
@@ -109,7 +149,11 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                               ),
                             ),
                             onPressed: _handleGoogleSignIn,
-                            icon: const Icon(Icons.login),
+                            icon: Image.network(
+                                'http://pngimg.com/uploads/google/google_PNG19635.png',
+                                height: 24,
+                                width: 24,
+                            ),
                             label: const Text(
                               '使用 Google 登入',
                               style: TextStyle(fontSize: 16),
@@ -122,6 +166,36 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                         '不使用帳號，直接進入',
                         style: TextStyle(fontSize: 14, color: Colors.black87),
                       ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          '還沒有帳號？',
+                          style: TextStyle(color: Colors.grey[700]),
+                        ),
+                        const SizedBox(width: 4),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => RegisterPage(
+                                  onTap: () => Navigator.pop(context),
+                                ),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            '註冊',
+                            style: TextStyle(
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
