@@ -42,31 +42,6 @@ class LoginPageWrapper extends StatelessWidget {
       body: Stack(
         children: [
           const LoginPage(),
-          Positioned(
-            bottom: 16,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  '還沒有帳號？',
-                  style: TextStyle(color: Colors.grey[700]),
-                ),
-                const SizedBox(width: 4),
-                GestureDetector(
-                  onTap: onTap,
-                  child: const Text(
-                    '註冊',
-                    style: TextStyle(
-                      color: Colors.blue,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );
