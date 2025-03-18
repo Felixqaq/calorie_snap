@@ -1,3 +1,5 @@
+import 'package:calorie_snap/pages/profile_page.dart';
+import 'package:calorie_snap/pages/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -37,6 +39,19 @@ class MyApp extends StatelessWidget {
           brightness: Brightness.light,
         ),
         useMaterial3: true,
+        appBarTheme: const AppBarTheme(
+          elevation: 0,
+          centerTitle: true,
+          backgroundColor: Colors.transparent,
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
         textTheme: const TextTheme(
           titleLarge: TextStyle(
             fontSize: 24,
@@ -52,6 +67,8 @@ class MyApp extends StatelessWidget {
           onTap: () => Navigator.pushReplacementNamed(context, '/login'),
         ),
         '/login': (context) => const LoginPage(),
+        '/profile': (context) => const ProfilePage(),
+        '/settings': (context) => const SettingsPage(),
       },
       home: const AuthWrapper(),
     );

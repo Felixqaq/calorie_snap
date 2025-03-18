@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:calorie_snap/pages/login_page.dart';
 import 'food_page.dart';
 import 'show_today_intake_page.dart';
 import 'search_food_page.dart';
-import 'package:calorie_snap/services/auth_service.dart';  // 新增引入
-import 'package:calorie_snap/services/storage_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,55 +13,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _selectedIndex = 0;
-  final _storageService = StorageService();
-  final AuthService _authService = AuthService();
-
-  // 處理登出功能
-  Future<void> _handleLogout() async {
-    // 顯示確認對話框
-    bool confirm = await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('確認登出'),
-        content: const Text('您確定要登出嗎？'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('確定'),
-          ),
-        ],
-      ),
-    ) ?? false;
-
-    if (!confirm) return;
-
-    try {
-      // 登出 (使用 AuthService)
-      await _authService.signOut();
-
-      // 清除本地保存的使用者資料
-      await _storageService.deleteAll();
-
-      if (!mounted) return;
-
-      // 導航回登入頁面
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-        (route) => false,
-      );
-    } catch (error) {
-      if (!mounted) return;
-
-      // 顯示錯誤訊息
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('登出時發生錯誤: ${error.toString()}')),
-      );
-    }
-  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -125,13 +73,6 @@ class _HomePageState extends State<HomePage> {
               title: const Text('Intake Record'),
               selected: _selectedIndex == 2,
               onTap: () => _onItemTapped(2),
-            ),
-            // 在導航選單中新增登出選項
-            const Divider(),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text('登出'),
-              onTap: _handleLogout,
             ),
           ],
         ),
