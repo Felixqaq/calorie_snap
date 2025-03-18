@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:calorie_snap/pages/login_page.dart';
 import 'food_page.dart';
 import 'show_today_intake_page.dart';
 import 'search_food_page.dart';
 import 'package:calorie_snap/services/auth_service.dart';  // 新增引入
+import 'package:calorie_snap/services/storage_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,7 +16,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _selectedIndex = 0;
-  final _storage = const FlutterSecureStorage();
+  final _storageService = StorageService();
   final AuthService _authService = AuthService();
 
   // 處理登出功能
@@ -47,7 +47,7 @@ class _HomePageState extends State<HomePage> {
       await _authService.signOut();
 
       // 清除本地保存的使用者資料
-      await _storage.deleteAll();
+      await _storageService.deleteAll();
 
       if (!mounted) return;
 

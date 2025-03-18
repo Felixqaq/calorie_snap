@@ -1,8 +1,10 @@
 import 'package:calorie_snap/pages/register_page.dart';
+import 'package:calorie_snap/services/storage_service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:email_validator/email_validator.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'home_page.dart';
-import 'package:calorie_snap/services/auth_service.dart';  // 新增引入
+import 'package:calorie_snap/services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -15,8 +17,13 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   bool _isLoading = false;
   late AnimationController _animController;
   late Animation<double> _opacityAnimation;
-  final _storage = const FlutterSecureStorage();
+  final _storageService = StorageService();
   final AuthService _authService = AuthService();
+
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  String _errorMessage = '';
 
   @override
   void initState() {
@@ -36,7 +43,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
 
   // 檢查使用者是否已經登入
   Future<void> _checkLoginStatus() async {
-    final userEmail = await _storage.read(key: 'userEmail');
+    final userEmail = await _storageService.read(key: 'userEmail');
     if (userEmail != null) {
       if (!mounted) return;
       Navigator.pushReplacement(
@@ -52,7 +59,6 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
       
       final userCredential = await _authService.signInWithGoogle();
       if (userCredential == null) {
-        // 使用者取消登入
         setState(() => _isLoading = false);
         return;
       }
@@ -62,11 +68,11 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
         throw Exception('無法獲取使用者資訊');
       }
 
-      // 儲存使用者資料
-      await _storage.write(key: 'userId', value: user.uid);
-      await _storage.write(key: 'userEmail', value: user.email);
-      await _storage.write(key: 'userName', value: user.displayName);
-      await _storage.write(key: 'userPhoto', value: user.photoURL);
+      // 儲存使用者資料時進行明確的型別轉換
+      await _storageService.write(key: 'userId', value: user.uid);
+      await _storageService.write(key: 'userEmail', value: user.email ?? '');
+      await _storageService.write(key: 'userName', value: user.displayName ?? '');
+      await _storageService.write(key: 'userPhoto', value: user.photoURL ?? '');
 
       if (!mounted) return;
       Navigator.pushReplacement(
@@ -74,11 +80,63 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
         MaterialPageRoute(builder: (context) => const HomePage()),
       );
     } catch (error) {
-      // 處理登入錯誤
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('登入失敗: ${error.toString()}')),
       );
       setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _signInWithEmail() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = '';
+    });
+
+    try {
+      final userCredential = await _authService.signInWithEmailPassword(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
+
+      final user = userCredential.user;
+      if (user == null) {
+        throw Exception('無法獲取使用者資訊');
+      }
+
+      // 儲存使用者資料時進行明確的型別轉換
+      await _storageService.write(key: 'userId', value: user.uid);
+      await _storageService.write(key: 'userEmail', value: user.email ?? '');
+      await _storageService.write(key: 'userName', value: user.displayName ?? '');
+      await _storageService.write(key: 'userPhoto', value: user.photoURL ?? '');
+
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomePage()),
+      );
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        switch (e.code) {
+          case 'user-not-found':
+            _errorMessage = '找不到此Email帳號';
+            break;
+          case 'wrong-password':
+            _errorMessage = '密碼錯誤';
+            break;
+          case 'invalid-email':
+            _errorMessage = 'Email格式不正確';
+            break;
+          default:
+            _errorMessage = '登入失敗：${e.message}';
+        }
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -91,6 +149,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
 
   @override
   void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
     _animController.dispose();
     super.dispose();
   }
@@ -126,83 +186,151 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                     ),
                   ],
                 ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.camera, size: 72, color: Theme.of(context).primaryColor),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Calorie Snap',
-                      style: theme.textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      '飲食紀錄，輕鬆掌控',
-                      style: TextStyle(fontSize: 16, color: Colors.black54),
-                    ),
-                    const SizedBox(height: 24),
-                    _isLoading
-                        ? const CircularProgressIndicator()
-                        : ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 16, horizontal: 32),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                            ),
-                            onPressed: _handleGoogleSignIn,
-                            icon: Image.network(
-                                'http://pngimg.com/uploads/google/google_PNG19635.png',
-                                height: 24,
-                                width: 24,
-                            ),
-                            label: const Text(
-                              '使用 Google 登入',
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ),
-                    const SizedBox(height: 12),
-                    TextButton(
-                      onPressed: _skipLogin,
-                      child: const Text(
-                        '不使用帳號，直接進入',
-                        style: TextStyle(fontSize: 14, color: Colors.black87),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          '還沒有帳號？',
-                          style: TextStyle(color: Colors.grey[700]),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.camera, size: 72, color: Theme.of(context).primaryColor),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Calorie Snap',
+                        style: theme.textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
                         ),
-                        const SizedBox(width: 4),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => RegisterPage(
-                                  onTap: () => Navigator.pop(context),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        '飲食紀錄，輕鬆掌控',
+                        style: TextStyle(fontSize: 16, color: Colors.black54),
+                      ),
+                      const SizedBox(height: 24),
+                      TextFormField(
+                        controller: _emailController,
+                        decoration: InputDecoration(
+                          hintText: '電子郵件',
+                          prefixIcon: const Icon(Icons.email),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return '請輸入電子郵件';
+                          }
+                          if (!EmailValidator.validate(value.trim())) {
+                            return '請輸入有效的電子郵件地址';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _passwordController,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          hintText: '密碼',
+                          prefixIcon: const Icon(Icons.lock),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return '請輸入密碼';
+                          }
+                          return null;
+                        },
+                      ),
+                      if (_errorMessage.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Text(
+                            _errorMessage,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: _isLoading ? null : _signInWithEmail,
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 48),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: _isLoading
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Text('使用 Email 登入'),
+                      ),
+                      const SizedBox(height: 16),
+                      const Text('或', style: TextStyle(color: Colors.grey)),
+                      const SizedBox(height: 16),
+                      _isLoading
+                          ? const CircularProgressIndicator()
+                          : ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 16, horizontal: 32),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
                                 ),
                               ),
-                            );
-                          },
-                          child: const Text(
-                            '註冊',
-                            style: TextStyle(
-                              color: Colors.blue,
-                              fontWeight: FontWeight.bold,
+                              onPressed: _handleGoogleSignIn,
+                              icon: Image.network(
+                                  'http://pngimg.com/uploads/google/google_PNG19635.png',
+                                  height: 24,
+                                  width: 24,
+                              ),
+                              label: const Text(
+                                '使用 Google 登入',
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ),
+                      const SizedBox(height: 12),
+                      TextButton(
+                        onPressed: _skipLogin,
+                        child: const Text(
+                          '不使用帳號，直接進入',
+                          style: TextStyle(fontSize: 14, color: Colors.black87),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            '還沒有帳號？',
+                            style: TextStyle(color: Colors.grey[700]),
+                          ),
+                          const SizedBox(width: 4),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => RegisterPage(
+                                    onTap: () => Navigator.pop(context),
+                                  ),
+                                ),
+                              );
+                            },
+                            child: const Text(
+                              '註冊',
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

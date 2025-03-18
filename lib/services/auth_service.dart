@@ -68,7 +68,7 @@ class AuthService {
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
       
       // 建立 Firebase 憑證
-      final credential = GoogleAuthProvider.credential(
+      final OAuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
