@@ -27,14 +27,14 @@ class AuthService {
         password: password,
       );
       
-      // 發送電子郵件驗證
       await userCredential.user?.sendEmailVerification();
       
-      // 建立使用者資料
-      await _createUserDocument(userCredential.user!);
+      // 註冊成功後印出提示
+      debugPrint('註冊成功! 請至 $email 信箱驗證您的帳號');
       
       return userCredential;
     } catch (e) {
+      debugPrint('註冊失敗: $e');
       rethrow;
     }
   }
@@ -81,7 +81,6 @@ class AuthService {
       
       // 如果是新用戶，建立用戶資料
       if (isNewUser) {
-        await _createUserDocument(userCredential.user!);
         
         // 您可以在這裡加入新用戶的其他處理邏輯
         debugPrint('已成功建立新用戶：${userCredential.user!.displayName}');
@@ -107,16 +106,6 @@ class AuthService {
     await _auth.sendPasswordResetEmail(email: email);
   }
 
-  // 建立使用者文檔
-  Future<void> _createUserDocument(User user) async {
-    await _firestore.collection('users').doc(user.uid).set({
-      'email': user.email,
-      'displayName': user.displayName ?? '',
-      'photoURL': user.photoURL ?? '',
-      'createdAt': FieldValue.serverTimestamp(),
-      'emailVerified': user.emailVerified,
-    });
-  }
 
   // 更新使用者資料
   Future<void> updateUserProfile({String? displayName, String? photoURL}) async {

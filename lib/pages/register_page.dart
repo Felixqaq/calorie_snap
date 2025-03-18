@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:calorie_snap/services/auth_service.dart';
 
 class RegisterPage extends StatefulWidget {
   final Function()? onTap;
@@ -13,6 +12,7 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  final AuthService _authService = AuthService();
   // 表單的全域鍵，用於驗證
   final _formKey = GlobalKey<FormState>();
   
@@ -26,9 +26,6 @@ class _RegisterPageState extends State<RegisterPage> {
   
   // 使用條款同意狀態
   bool agreedToTerms = false;
-  
-  // Firebase Auth 實例
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   
   // 密碼強度狀態
   double _passwordStrength = 0;
@@ -124,66 +121,22 @@ class _RegisterPageState extends State<RegisterPage> {
     
     try {
       // 創建使用者
-      final userCredential = await _auth.createUserWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
+      await _authService.registerWithEmailPassword(
+        emailController.text,
+        passwordController.text
       );
       
-      // 發送電子郵件驗證
-      await userCredential.user?.sendEmailVerification();
-      
-      // 將使用者資料儲存到 Firestore
-      if (userCredential.user != null) {
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(userCredential.user!.uid)
-            .set({
-          'email': emailController.text.trim(),
-          'createdAt': FieldValue.serverTimestamp(),
-          'emailVerified': false,
-        });
-      }
-      
-      // 顯示提示訊息
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('註冊成功！請檢查您的電子郵件以驗證帳號。'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      Navigator.pop(context); // 返回登入頁
       
-      // 重置表單
-      _formKey.currentState!.reset();
-      
-    } on FirebaseAuthException catch (e) {
-      String message;
-      switch (e.code) {
-        case 'email-already-in-use':
-          message = '此電子郵件已經被使用';
-          break;
-        case 'weak-password':
-          message = '密碼太弱，請使用更複雜的密碼';
-          break;
-        case 'invalid-email':
-          message = '電子郵件格式不正確';
-          break;
-        default:
-          message = '註冊失敗：${e.message}';
-      }
-      setState(() {
-        errorMessage = message;
-      });
     } catch (e) {
       setState(() {
-        errorMessage = '註冊過程發生錯誤：$e';
+        errorMessage = '註冊失敗: ${e.toString()}';
       });
     } finally {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
