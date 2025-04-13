@@ -51,14 +51,6 @@ Widget _buildAccountButton(BuildContext context, User? user, AuthService authSer
             contentPadding: EdgeInsets.zero,
           ),
         ),
-        PopupMenuItem(
-          value: 'settings',
-          child: ListTile(
-            leading: const Icon(Icons.settings),
-            title: Text('設定'),
-            contentPadding: EdgeInsets.zero,
-          ),
-        ),
         const PopupMenuDivider(),
         PopupMenuItem(
           value: 'logout',

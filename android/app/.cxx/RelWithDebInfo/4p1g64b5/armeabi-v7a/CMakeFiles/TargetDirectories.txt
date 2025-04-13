@@ -1,0 +1,2 @@
+D:/Felix/Android_StudioProjects/calorie_snap/android/app/.cxx/RelWithDebInfo/4p1g64b5/armeabi-v7a/CMakeFiles/edit_cache.dir
+D:/Felix/Android_StudioProjects/calorie_snap/android/app/.cxx/RelWithDebInfo/4p1g64b5/armeabi-v7a/CMakeFiles/rebuild_cache.dir

@@ -1,5 +1,4 @@
 import 'package:calorie_snap/pages/profile_page.dart';
-import 'package:calorie_snap/pages/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -68,7 +67,6 @@ class MyApp extends StatelessWidget {
         ),
         '/login': (context) => const LoginPage(),
         '/profile': (context) => const ProfilePage(),
-        '/settings': (context) => const SettingsPage(),
       },
       home: const AuthWrapper(),
     );
