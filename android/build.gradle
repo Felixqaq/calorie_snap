@@ -1,9 +1,23 @@
+buildscript {
+    ext.kotlin_version = '2.1.0'
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "com.android.tools.build:gradle:8.2.1"
+        classpath "com.google.gms:google-services:4.4.2"
+    }
+}
+
 allprojects {
     repositories {
         google()
         mavenCentral()
     }
-    
+
     // 為所有項目設定 Java 相容性
     tasks.withType(JavaCompile) {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -14,9 +28,9 @@ allprojects {
 rootProject.buildDir = "../build"
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
-    
+
     // 確保所有子專案使用 Java 17
-    afterEvaluate {project ->
+    afterEvaluate { project ->
         if (project.hasProperty('android')) {
             project.android {
                 compileOptions {
