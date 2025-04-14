@@ -1,7 +1,7 @@
 name: calorie_snap
 description: "calorie_snap"
 publish_to: 'none'
-version: 0.0.0+1
+version: 0.0.2+3
 
 environment:
   sdk: ^3.6.1

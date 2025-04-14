@@ -10,10 +10,8 @@ class AuthWrapper extends StatefulWidget {
 }
 
 class _AuthWrapperState extends State<AuthWrapper> {
-  // 控制顯示登入或註冊頁面
   bool showLoginPage = true;
 
-  // 切換頁面的方法
   void togglePages() {
     setState(() {
       showLoginPage = !showLoginPage;
@@ -30,7 +28,6 @@ class _AuthWrapperState extends State<AuthWrapper> {
   }
 }
 
-// 包裝現有的 LoginPage，添加切換功能
 class LoginPageWrapper extends StatelessWidget {
   final Function()? onTap;
   
