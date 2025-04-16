@@ -23,6 +23,9 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+  SystemChrome.setEnabledSystemUIMode(
+    SystemUiMode.edgeToEdge,
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -30,11 +33,25 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final seedColor = const Color(0xFF4CAF50);
+    
     return MaterialApp(
       title: 'Calorie Snap',
+      builder: (context, child) {
+        // 獲取當前主題顏色
+        final ThemeData theme = Theme.of(context);
+        // 設置系統導航列顏色與主題一致
+        SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+          systemNavigationBarColor: Theme.of(context).colorScheme.surface,
+          systemNavigationBarIconBrightness: Brightness.dark,
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: theme.brightness == Brightness.dark ? Brightness.light : Brightness.dark,
+        ));
+        return child!;
+      },
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF4CAF50),
+          seedColor: seedColor,
           brightness: Brightness.light,
         ),
         useMaterial3: true,

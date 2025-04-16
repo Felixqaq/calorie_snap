@@ -12,7 +12,20 @@
           "package_name": "com.felixchang.calorie_snap"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "102340002803-ai30kednu5atq4uroeltugonko1mtk30.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.felixchang.calorie_snap",
+            "certificate_hash": "7ee9210364f3ef202076386d85e5d823afcb07e7"
+          }
+        },
+        {
+          "client_id": "102340002803-fakg2ii3r0st6uovqscqdsrjuvlideid.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDL_b6KsSKwfFbm6WQz5LUW0Kbyg_M1iNM"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "102340002803-fakg2ii3r0st6uovqscqdsrjuvlideid.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
